@@ -1,15 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
-import MainIndexPage from '~/components/Index'
+import LoginPage from '~/components/auth/LoginPage'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_auth/login/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
   return(
   <div>
-    <MainIndexPage>
-    </MainIndexPage>
+    <LoginPage>
+    </LoginPage>
   </div>
   );
 }
