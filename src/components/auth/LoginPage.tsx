@@ -10,7 +10,7 @@ export default function LoginPage() {
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       {/* Left panel */}
-      <div className="hidden lg:flex flex-col justify-between w-[420px] min-h-screen bg-blue-600 p-12 shrink-0">
+      <div className="hidden lg:flex flex-col justify-between w-105 min-h-screen bg-blue-600 p-12 shrink-0">
         <div className="flex items-center gap-2">
           <span className="text-white text-2xl">✦</span>
           <span className="text-white font-semibold text-lg tracking-wide">
