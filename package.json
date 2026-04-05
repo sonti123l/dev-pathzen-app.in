@@ -31,6 +31,7 @@
     "framer-motion": "^12.38.0",
     "js-cookie": "^3.0.5",
     "lucide-react": "^1.7.0",
+    "nitro": "^3.0.260311-beta",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-icons": "^5.6.0",
