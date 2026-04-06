@@ -1,12 +1,31 @@
 import { useState } from "react";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { loginPayload } from "~/lib/interfaces/auth";
+import { userLogin } from "~/services/auth/authService";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkRemember, setCheckRemember] = useState(false);
 
+  const userLoginMutation = useMutation({
+    mutationKey: ["user-login"],
+    mutationFn: async ({ payload }: { payload: loginPayload }) => {
+      const res = await userLogin({ payload });
+      return res;
+    },
+  });
+
+  const handleSubmit = async () => {
+    const payload: loginPayload = {
+      email: email,
+      password: password,
+    };
+    const res = userLoginMutation.mutate({ payload });
+    console.log(res);
+  };
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       {/* Left panel */}
@@ -31,7 +50,6 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Right panel — takes remaining space, centers content */}
       <div className="flex flex-1 justify-center items-center bg-white px-8">
         <div className="w-full max-w-sm flex flex-col gap-6">
           <div>
@@ -94,7 +112,10 @@ export default function LoginPage() {
               </Button>
             </div>
 
-            <Button className="h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg tracking-wide transition-all duration-200">
+            <Button
+              className="h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg tracking-wide transition-all duration-200"
+              onClick={() => handleSubmit()}
+            >
               Sign in
             </Button>
           </form>
