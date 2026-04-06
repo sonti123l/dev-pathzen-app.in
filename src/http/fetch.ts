@@ -9,7 +9,7 @@ interface IAPIResponse {
 }
 
 class FetchService {
-  authStatusCodes: number[] = [401, 403, 404, 422];
+  authStatusCodes: number[] = [401, 403, 404];
   authErrorURLs: string[] = ["/auth/login"];
   private activeRequests = new Map<string, AbortController>();
   private _fetchType: string;

@@ -23,7 +23,7 @@ export default function LoginPage() {
       email: email,
       password: password,
     };
-    const res = await userLoginMutation.mutate({ payload });
+    const res = userLoginMutation.mutate({ payload });
     console.log(res);
   };
   return (
@@ -50,7 +50,6 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Right panel — takes remaining space, centers content */}
       <div className="flex flex-1 justify-center items-center bg-white px-8">
         <div className="w-full max-w-sm flex flex-col gap-6">
           <div>
