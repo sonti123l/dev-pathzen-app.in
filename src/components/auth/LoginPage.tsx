@@ -25,8 +25,8 @@ export default function LoginPage() {
       localStorage.setItem("user details", data?.data?.email);
     },
     onError(error) {
-      if (error?.status == 422) {
-        let errors = error?.data.data;
+      if (error?.status === 422) {
+        const errors = error?.data.data;
         setErrors(errors);
       }
     },
@@ -35,8 +35,8 @@ export default function LoginPage() {
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const payload: loginPayload = {
-      email: email,
-      password: password,
+      email: email.trim(),
+      password: password.trim(),
     };
     await userLoginMutation.mutateAsync({ payload });
   };
