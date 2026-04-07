@@ -4,18 +4,31 @@ import { Button } from "~/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { loginPayload } from "~/lib/interfaces/auth";
 import { userLogin } from "~/services/auth/authService";
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkRemember, setCheckRemember] = useState(false);
+  const [errors, setErrors] = useState([]);
 
   const userLoginMutation = useMutation({
     mutationKey: ["user-login"],
     mutationFn: async ({ payload }: { payload: loginPayload }) => {
       const res = await userLogin({ payload });
-      console.log(res);
-      return res;
+      return res?.data;
+    },
+    onSuccess(data) {
+      const tokens = data.token;
+      Cookies.set("token", tokens.access_token);
+      Cookies.set("refresh_token", tokens.refresh_token);
+      localStorage.setItem("user details", data?.data?.email);
+    },
+    onError(error) {
+      if (error?.status == 422) {
+        let errors = error?.data.data;
+        setErrors(errors);
+      }
     },
   });
 
@@ -25,9 +38,9 @@ export default function LoginPage() {
       email: email,
       password: password,
     };
-    const res = await userLoginMutation.mutateAsync({ payload });
-    console.log(res);
+    await userLoginMutation.mutateAsync({ payload });
   };
+
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       {/* Left panel */}
@@ -77,6 +90,11 @@ export default function LoginPage() {
                 }}
                 className="h-11 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
+              {errors.length > 0 && errors?.[0]?.path[0] === "email" ? (
+                <p className="text-red-500 text-xs">{errors?.[0]?.message}</p>
+              ) : (
+                ""
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -92,6 +110,11 @@ export default function LoginPage() {
                 }
                 className="h-11 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
+              {errors.length > 0 && errors?.[1]?.path[0] === "password" ? (
+                <p className="text-red-500 text-xs">{errors?.[1]?.message}</p>
+              ) : (
+                ""
+              )}
             </div>
 
             <div className="flex justify-between items-center">

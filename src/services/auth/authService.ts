@@ -6,6 +6,6 @@ export const userLogin = async ({ payload }: { payload: loginPayload }) => {
     const response = await $fetch.post("/auth/login", payload);
     return response;
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 };
