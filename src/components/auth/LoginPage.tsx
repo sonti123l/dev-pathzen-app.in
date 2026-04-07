@@ -14,16 +14,18 @@ export default function LoginPage() {
     mutationKey: ["user-login"],
     mutationFn: async ({ payload }: { payload: loginPayload }) => {
       const res = await userLogin({ payload });
+      console.log(res);
       return res;
     },
   });
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const payload: loginPayload = {
       email: email,
       password: password,
     };
-    const res = userLoginMutation.mutate({ payload });
+    const res = await userLoginMutation.mutateAsync({ payload });
     console.log(res);
   };
   return (
@@ -61,7 +63,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form className="flex flex-col gap-5">
+          <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-medium text-slate-500 uppercase tracking-widest">
                 Email
@@ -114,7 +116,7 @@ export default function LoginPage() {
 
             <Button
               className="h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg tracking-wide transition-all duration-200"
-              onClick={() => handleSubmit()}
+              type="submit"
             >
               Sign in
             </Button>
