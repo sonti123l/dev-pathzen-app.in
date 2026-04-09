@@ -4,6 +4,7 @@ import { Button } from "~/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { loginPayload } from "~/lib/interfaces/auth";
 import { userLogin } from "~/services/auth/authService";
+import { useNavigate } from "@tanstack/react-router";
 import Cookies from "js-cookie";
 
 export default function LoginPage() {
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [checkRemember, setCheckRemember] = useState(false);
   const [errors, setErrors] = useState([]);
+  const navigate = useNavigate();
 
   const userLoginMutation = useMutation({
     mutationKey: ["user-login"],
@@ -144,6 +146,13 @@ export default function LoginPage() {
               Sign in
             </Button>
           </form>
+
+          <div className="flex justify-center items-center">
+            <p>Create New Account?</p>
+            <Button onClick={() => navigate({ to: "/register" })} className="bg-transparent text-blue-600 text-md">
+              Sign Up
+            </Button>
+          </div>
         </div>
       </div>
     </div>
