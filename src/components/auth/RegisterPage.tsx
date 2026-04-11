@@ -1,6 +1,6 @@
 import { Input } from "../ui/input";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   getColleges,
   getCoursesByDomainId,
@@ -23,6 +23,8 @@ import {
   CoursesDataType,
 } from "~/lib/interfaces/app";
 import { useNavigate } from "@tanstack/react-router";
+import { registerPayload } from "~/lib/interfaces/auth";
+import { registerUser } from "~/services/auth/authService";
 
 export default function RegisterPage() {
   const [registrationFormData, setRegistrationFormData] =
@@ -100,9 +102,31 @@ export default function RegisterPage() {
     enabled: !!registrationFormData?.domainId,
   });
 
+  // Api to register user
+  const registerNewUser = useMutation({
+    mutationKey: ["register-user"],
+    mutationFn: async (payload: registerPayload) => {
+      const response = await registerUser({ payload });
+      return response?.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data);
+    },
+  });
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    console.log("came here");
+    const payload = {
+      name: registrationFormData.name.trim(),
+      email: registrationFormData.email.trim(),
+      password: registrationFormData.password.trim(),
+      branchName: registrationFormData.branchName.trim(),
+      collegeId: registrationFormData.collegeId,
+      domainId: registrationFormData.domainId,
+      rollNo: registrationFormData.rollNo.trim(),
+      courseId: registrationFormData.courseId,
+    };
+
+    await registerNewUser.mutateAsync(payload);
   };
 
   // useEffect for domains to prevent re-renders
@@ -421,7 +445,7 @@ export default function RegisterPage() {
               <Button
                 variant="ghost"
                 className="p-0 h-auto text-blue-600 font-medium hover:text-blue-700 hover:bg-transparent underline-offset-4 hover:underline transition-all duration-200"
-                onClick={() => navigate({to: "/login"}) }
+                onClick={() => navigate({ to: "/login" })}
               >
                 Log In
               </Button>
