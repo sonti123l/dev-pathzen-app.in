@@ -11,7 +11,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkRemember, setCheckRemember] = useState(false);
-  const [errors, setErrors] = useState([]);
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const userLoginMutation = useMutation({
@@ -29,7 +30,16 @@ export default function LoginPage() {
     onError(error) {
       if (error?.status === 422) {
         const errors = error?.data.data;
-        setErrors(errors);
+        const errorMessage = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "email",
+        )?.[0];
+        const passwordError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "password",
+        )?.[0];
+        setEmailErrorMessage(errorMessage.message);
+        setPasswordErrorMessage(passwordError.password);
       }
     },
   });
@@ -92,8 +102,8 @@ export default function LoginPage() {
                 }}
                 className="h-11 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
-              {errors.length > 0 && errors?.[0]?.path[0] === "email" ? (
-                <p className="text-red-500 text-xs">{errors?.[0]?.message}</p>
+              {emailErrorMessage ? (
+                <p className="text-red-500 text-xs">{emailErrorMessage}</p>
               ) : (
                 ""
               )}
@@ -112,8 +122,8 @@ export default function LoginPage() {
                 }
                 className="h-11 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
-              {errors.length > 0 && errors?.[1]?.path[0] === "password" ? (
-                <p className="text-red-500 text-xs">{errors?.[1]?.message}</p>
+              {passwordErrorMessage ? (
+                <p className="text-red-500 text-xs">{passwordErrorMessage}</p>
               ) : (
                 ""
               )}
@@ -149,7 +159,10 @@ export default function LoginPage() {
 
           <div className="flex justify-center items-center">
             <p>Create New Account?</p>
-            <Button onClick={() => navigate({ to: "/register" })} className="bg-transparent text-blue-600 text-md">
+            <Button
+              onClick={() => navigate({ to: "/register" })}
+              className="bg-transparent text-blue-600 text-md"
+            >
               Sign Up
             </Button>
           </div>
