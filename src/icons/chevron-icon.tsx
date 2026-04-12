@@ -3,7 +3,7 @@ const ChevronDown = ({ size = 24, className="text-black" }) => (
     width={size}
     height={size}
     viewBox="0 0 24 24"
-    fill="none"
+    fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
   >

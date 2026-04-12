@@ -11,7 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LayoutSettingsIndexRouteImport } from './routes/_layout/settings/index'
+import { Route as LayoutProgressIndexRouteImport } from './routes/_layout/progress/index'
 import { Route as LayoutDashboardIndexRouteImport } from './routes/_layout/dashboard/index'
+import { Route as LayoutCoursesIndexRouteImport } from './routes/_layout/courses/index'
+import { Route as LayoutCertificationsIndexRouteImport } from './routes/_layout/certifications/index'
 import { Route as AuthRegisterIndexRouteImport } from './routes/_auth/register/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/_auth/login/index'
 
@@ -24,11 +28,32 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LayoutSettingsIndexRoute = LayoutSettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutProgressIndexRoute = LayoutProgressIndexRouteImport.update({
+  id: '/progress/',
+  path: '/progress/',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutDashboardIndexRoute = LayoutDashboardIndexRouteImport.update({
   id: '/dashboard/',
   path: '/dashboard/',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutCoursesIndexRoute = LayoutCoursesIndexRouteImport.update({
+  id: '/courses/',
+  path: '/courses/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutCertificationsIndexRoute =
+  LayoutCertificationsIndexRouteImport.update({
+    id: '/certifications/',
+    path: '/certifications/',
+    getParentRoute: () => LayoutRoute,
+  } as any)
 const AuthRegisterIndexRoute = AuthRegisterIndexRouteImport.update({
   id: '/_auth/register/',
   path: '/register/',
@@ -44,13 +69,21 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login/': typeof AuthLoginIndexRoute
   '/register/': typeof AuthRegisterIndexRoute
+  '/certifications/': typeof LayoutCertificationsIndexRoute
+  '/courses/': typeof LayoutCoursesIndexRoute
   '/dashboard/': typeof LayoutDashboardIndexRoute
+  '/progress/': typeof LayoutProgressIndexRoute
+  '/settings/': typeof LayoutSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginIndexRoute
   '/register': typeof AuthRegisterIndexRoute
+  '/certifications': typeof LayoutCertificationsIndexRoute
+  '/courses': typeof LayoutCoursesIndexRoute
   '/dashboard': typeof LayoutDashboardIndexRoute
+  '/progress': typeof LayoutProgressIndexRoute
+  '/settings': typeof LayoutSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -58,20 +91,44 @@ export interface FileRoutesById {
   '/_layout': typeof LayoutRouteWithChildren
   '/_auth/login/': typeof AuthLoginIndexRoute
   '/_auth/register/': typeof AuthRegisterIndexRoute
+  '/_layout/certifications/': typeof LayoutCertificationsIndexRoute
+  '/_layout/courses/': typeof LayoutCoursesIndexRoute
   '/_layout/dashboard/': typeof LayoutDashboardIndexRoute
+  '/_layout/progress/': typeof LayoutProgressIndexRoute
+  '/_layout/settings/': typeof LayoutSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login/' | '/register/' | '/dashboard/'
+  fullPaths:
+    | '/'
+    | '/login/'
+    | '/register/'
+    | '/certifications/'
+    | '/courses/'
+    | '/dashboard/'
+    | '/progress/'
+    | '/settings/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/dashboard'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/certifications'
+    | '/courses'
+    | '/dashboard'
+    | '/progress'
+    | '/settings'
   id:
     | '__root__'
     | '/'
     | '/_layout'
     | '/_auth/login/'
     | '/_auth/register/'
+    | '/_layout/certifications/'
+    | '/_layout/courses/'
     | '/_layout/dashboard/'
+    | '/_layout/progress/'
+    | '/_layout/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -97,11 +154,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_layout/settings/': {
+      id: '/_layout/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof LayoutSettingsIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/progress/': {
+      id: '/_layout/progress/'
+      path: '/progress'
+      fullPath: '/progress/'
+      preLoaderRoute: typeof LayoutProgressIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/dashboard/': {
       id: '/_layout/dashboard/'
       path: '/dashboard'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof LayoutDashboardIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/courses/': {
+      id: '/_layout/courses/'
+      path: '/courses'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof LayoutCoursesIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/certifications/': {
+      id: '/_layout/certifications/'
+      path: '/certifications'
+      fullPath: '/certifications/'
+      preLoaderRoute: typeof LayoutCertificationsIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_auth/register/': {
@@ -122,11 +207,19 @@ declare module '@tanstack/react-router' {
 }
 
 interface LayoutRouteChildren {
+  LayoutCertificationsIndexRoute: typeof LayoutCertificationsIndexRoute
+  LayoutCoursesIndexRoute: typeof LayoutCoursesIndexRoute
   LayoutDashboardIndexRoute: typeof LayoutDashboardIndexRoute
+  LayoutProgressIndexRoute: typeof LayoutProgressIndexRoute
+  LayoutSettingsIndexRoute: typeof LayoutSettingsIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
+  LayoutCertificationsIndexRoute: LayoutCertificationsIndexRoute,
+  LayoutCoursesIndexRoute: LayoutCoursesIndexRoute,
   LayoutDashboardIndexRoute: LayoutDashboardIndexRoute,
+  LayoutProgressIndexRoute: LayoutProgressIndexRoute,
+  LayoutSettingsIndexRoute: LayoutSettingsIndexRoute,
 }
 
 const LayoutRouteWithChildren =

@@ -1,5 +1,5 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
-import Header from "~/components/core/Header";
+import { createFileRoute } from "@tanstack/react-router";
+import AppLayout from "~/components/AppLayout";
 
 export const Route = createFileRoute("/_layout")({
   component: RouteComponent,
@@ -8,8 +8,9 @@ export const Route = createFileRoute("/_layout")({
 function RouteComponent() {
   return (
     <div>
-      <Header />
-      <Outlet />
+      <AppLayout>
+        <div></div>
+      </AppLayout>
     </div>
   );
 }
