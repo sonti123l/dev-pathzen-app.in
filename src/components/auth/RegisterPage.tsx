@@ -21,10 +21,12 @@ import {
   CollegeData,
   DomainsDataType,
   CoursesDataType,
+  RegisterErrorMessage,
 } from "~/lib/interfaces/app";
 import { useNavigate } from "@tanstack/react-router";
 import { registerPayload } from "~/lib/interfaces/auth";
 import { registerUser } from "~/services/auth/authService";
+import TruncatedItem from "../TruncatedItem";
 
 export default function RegisterPage() {
   const [registrationFormData, setRegistrationFormData] =
@@ -39,6 +41,18 @@ export default function RegisterPage() {
       rollNo: "",
       courseId: 0,
     });
+
+  // registration errors message
+  const [errorMessages, setErrorMessages] = useState<RegisterErrorMessage>({
+    name: "",
+    email: "",
+    password: "",
+    branch_name: "",
+    college_id: "",
+    domain_id: "",
+    roll_no: "",
+    course_id: "",
+  });
 
   const navigate = useNavigate();
   // Colleges
@@ -111,6 +125,56 @@ export default function RegisterPage() {
     },
     onSuccess: (data) => {
       toast.success(data);
+    },
+    onError: (error) => {
+      if (error?.status === 422) {
+        const errors = error?.data.data;
+        const nameError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "name",
+        )?.[0];
+
+        const emailError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "email",
+        )?.[0];
+        const passwordError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "password",
+        )?.[0];
+        const branchNameError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "branch_name",
+        )?.[0];
+        const collegeIdError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "college_id",
+        )?.[0];
+        const domainIdError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "domain_id",
+        )?.[0];
+        const rollNoError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "roll_no",
+        )?.[0];
+        const courseIdError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "course_id",
+        )?.[0];
+
+        setErrorMessages((prev) => ({
+          ...prev,
+          name: nameError?.message,
+          email: emailError?.message,
+          password: passwordError?.message,
+          branch_name: branchNameError?.message,
+          college_id: collegeIdError?.message,
+          domain_id: domainIdError?.message,
+          roll_no: rollNoError?.message,
+          course_id: courseIdError?.message,
+        }));
+      }
     },
   });
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -204,21 +268,21 @@ export default function RegisterPage() {
         </p>
       </div>
 
-      {/* Right panel */}
-      <div className="flex flex-1 justify-center items-center bg-white px-8 py-12">
-        <div className="w-full max-w-md flex flex-col gap-8">
+      {/* Right panel - scrollable */}
+      <div className="flex flex-1 justify-center items-start bg-white overflow-y-auto mt-10">
+        <div className="w-full max-w-2xl flex flex-col gap-6 px-10 py-10">
           {/* Header */}
-          <div className="flex justify-center items-center gap-2 mb-2">
-            {/* <ProfileIcon className="w-6 h-6 text-blue-600" /> */}
-            <p className="text-gray-900 text-xl font-semibold">Register</p>
+          <div className="flex flex-col gap-1 mb-1">
+            <p className="text-gray-900 text-2xl font-bold">Create account</p>
+            <p className="text-gray-400 text-sm">Sign up to start learning</p>
           </div>
 
           <div>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               {/* First section - Name & Email */}
               <div className="flex flex-row gap-4">
                 <div className="flex-1 flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Name
                   </label>
                   <Input
@@ -229,12 +293,19 @@ export default function RegisterPage() {
                         name: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 placeholder-[#b0bbd4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     placeholder="Enter your name"
                   />
+                  {errorMessages?.name ? (
+                    <p className="text-red-500 text-xs">
+                      {errorMessages?.name}
+                    </p>
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <div className="flex-1 flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Email
                   </label>
                   <Input
@@ -245,16 +316,23 @@ export default function RegisterPage() {
                         email: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 placeholder-[#b0bbd4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     placeholder="you@example.com"
                   />
+                  {errorMessages?.email ? (
+                    <p className="text-red-500 text-xs">
+                      {errorMessages?.email}
+                    </p>
+                  ) : (
+                    ""
+                  )}
                 </div>
               </div>
 
               {/* Second section - Password & Verify Password */}
               <div className="flex flex-row gap-4">
                 <div className="flex-1 flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Password
                   </label>
                   <Input
@@ -266,12 +344,19 @@ export default function RegisterPage() {
                         password: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 placeholder-[#b0bbd4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     placeholder="••••••••"
                   />
+                  {errorMessages?.password ? (
+                    <p className="text-red-500 text-xs">
+                      {errorMessages?.password}
+                    </p>
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <div className="flex-1 flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Verify Password
                   </label>
                   <Input
@@ -283,16 +368,24 @@ export default function RegisterPage() {
                         verifyPassword: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 placeholder-[#b0bbd4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     placeholder="••••••••"
                   />
+                  {registrationFormData.password !==
+                  registrationFormData.verifyPassword ? (
+                    <p className="text-red-500 text-xs">
+                      Password not matching
+                    </p>
+                  ) : (
+                    ""
+                  )}
                 </div>
               </div>
 
               {/* Third section - Branch Name & College Name */}
               <div className="flex flex-row gap-4">
                 <div className="flex-1 flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Branch Name
                   </label>
                   <Input
@@ -303,12 +396,19 @@ export default function RegisterPage() {
                         branchName: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 placeholder-[#b0bbd4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     placeholder="Enter branch name"
                   />
+                  {errorMessages?.branch_name ? (
+                    <p className="text-red-500 text-xs">
+                      {errorMessages?.branch_name}
+                    </p>
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <div className="flex-1 flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     College Name
                   </label>
                   <Select
@@ -319,10 +419,10 @@ export default function RegisterPage() {
                       })
                     }
                   >
-                    <SelectTrigger className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    <SelectTrigger className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
                       <SelectValue placeholder="Select college" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <SelectContent className="bg-white border border-[#e0e8f7] rounded-xl shadow-lg">
                       {collegesDataLoading ? (
                         <Loader />
                       ) : (
@@ -333,19 +433,26 @@ export default function RegisterPage() {
                             value={String(eachRecord?.college_id)}
                             className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
                           >
-                            {eachRecord?.college_name}
+                            <TruncatedItem name={eachRecord?.college_name} />
                           </SelectItem>
                         ))
                       )}
                     </SelectContent>
                   </Select>
+                  {errorMessages?.college_id ? (
+                    <p className="text-red-500 text-xs">
+                      {errorMessages?.college_id}
+                    </p>
+                  ) : (
+                    ""
+                  )}
                 </div>
               </div>
 
               {/* Fourth section - Field of Interest & Roll Number */}
               <div className="flex flex-row gap-4">
                 <div className="flex-1 flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Field of Interest
                   </label>
                   <Select
@@ -356,10 +463,10 @@ export default function RegisterPage() {
                       })
                     }
                   >
-                    <SelectTrigger className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    <SelectTrigger className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
                       <SelectValue placeholder="Select domain" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <SelectContent className="bg-white border border-[#e0e8f7] rounded-xl shadow-lg">
                       {loadingDomains ? (
                         <Loader />
                       ) : (
@@ -370,15 +477,22 @@ export default function RegisterPage() {
                             value={String(eachRecord?.domain_id)}
                             className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
                           >
-                            {eachRecord?.domain_name}
+                            <TruncatedItem name={eachRecord?.domain_name} />
                           </SelectItem>
                         ))
                       )}
                     </SelectContent>
                   </Select>
+                  {errorMessages?.domain_id ? (
+                    <p className="text-red-500 text-xs">
+                      {errorMessages?.domain_id}
+                    </p>
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <div className="flex-1 flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Roll Number
                   </label>
                   <Input
@@ -389,15 +503,22 @@ export default function RegisterPage() {
                         rollNo: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 placeholder-[#b0bbd4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     placeholder="Enter roll number"
                   />
+                  {errorMessages?.roll_no ? (
+                    <p className="text-red-500 text-xs">
+                      {errorMessages?.roll_no}
+                    </p>
+                  ) : (
+                    ""
+                  )}
                 </div>
               </div>
 
               {/* Fifth section - Courses (Full Width) */}
               <div className="w-full flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                   Courses
                 </label>
                 <Select
@@ -408,10 +529,10 @@ export default function RegisterPage() {
                     })
                   }
                 >
-                  <SelectTrigger className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                  <SelectTrigger className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
                     <SelectValue placeholder="Select course" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border border-gray-200 rounded-lg shadow-lg">
+                  <SelectContent className="bg-white border border-[#e0e8f7] rounded-xl shadow-lg">
                     {loadingCourses ? (
                       <Loader />
                     ) : (
@@ -422,29 +543,35 @@ export default function RegisterPage() {
                           value={String(eachRecord?.course_id)}
                           className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
                         >
-                          {eachRecord?.course_name}
+                          <TruncatedItem name={eachRecord?.course_name} />
                         </SelectItem>
                       ))
                     )}
                   </SelectContent>
                 </Select>
+                {errorMessages?.course_id ? (
+                  <p className="text-red-500 text-xs">
+                    {errorMessages?.course_id}
+                  </p>
+                ) : (
+                  ""
+                )}
               </div>
 
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mt-2"
+                className="w-full py-3.5 px-4 bg-[#3b6cf4] hover:bg-[#2251d1] text-white font-bold rounded-2xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 mt-2"
               >
                 Create Account
               </Button>
             </form>
 
-            <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-600">
+            <div className="mt-5 flex items-center justify-center gap-2 text-sm text-gray-500">
               <span>Already have an account?</span>
-
               <Button
                 variant="ghost"
-                className="p-0 h-auto text-blue-600 font-medium hover:text-blue-700 hover:bg-transparent underline-offset-4 hover:underline transition-all duration-200"
+                className="p-0 h-auto text-blue-500 font-semibold hover:text-blue-600 hover:bg-transparent underline-offset-4 hover:underline transition-all duration-200"
                 onClick={() => navigate({ to: "/login" })}
               >
                 Log In

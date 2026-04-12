@@ -10,6 +10,7 @@ import {
 import appCss from "~/styles/global.css?url";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "~/components/ui/sonner";
+import { TooltipProvider } from "~/components/ui/tooltip";
 
 const queryClient = new QueryClient();
 
@@ -49,9 +50,9 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body>
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
         <Scripts />
-        <Toaster/>
+        <Toaster />
       </body>
     </html>
   );
