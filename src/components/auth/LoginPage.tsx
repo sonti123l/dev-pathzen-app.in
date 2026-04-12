@@ -6,6 +6,7 @@ import { loginPayload } from "~/lib/interfaces/auth";
 import { userLogin } from "~/services/auth/authService";
 import { useNavigate } from "@tanstack/react-router";
 import Cookies from "js-cookie";
+import { Loader } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -26,6 +27,7 @@ export default function LoginPage() {
       Cookies.set("token", tokens.access_token);
       Cookies.set("refresh_token", tokens.refresh_token);
       localStorage.setItem("user details", JSON.stringify(data?.data, null, 2));
+      navigate({ to: "/dashboard" });
     },
     onError(error) {
       if (error?.status === 422) {
@@ -38,8 +40,8 @@ export default function LoginPage() {
           (eachError: { key: string; message: string }) =>
             eachError.key === "password",
         )?.[0];
-        setEmailErrorMessage(errorMessage.message);
-        setPasswordErrorMessage(passwordError.password);
+        setEmailErrorMessage(errorMessage?.message);
+        setPasswordErrorMessage(passwordError?.password);
       }
     },
   });
@@ -152,8 +154,13 @@ export default function LoginPage() {
             <Button
               className="h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg tracking-wide transition-all duration-200"
               type="submit"
+              disabled={userLoginMutation.isPending}
             >
-              Sign in
+              {userLoginMutation.isPending ? (
+                <Loader className="animate-spin" />
+              ) : (
+                "Sign in"
+              )}
             </Button>
           </form>
 

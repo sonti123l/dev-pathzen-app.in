@@ -51,6 +51,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </head>
       <body>
         <TooltipProvider>{children}</TooltipProvider>
+
         <Scripts />
         <Toaster />
       </body>
