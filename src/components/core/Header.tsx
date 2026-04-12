@@ -9,7 +9,7 @@ export default function Header(){
                 <MenuIcon/>
             </div>
             <div className="w-10 pr-2 ">
-                <Button className= "w-full h-9.5 bg-white border">
+                <Button className= "w-full h-9.5 bg-transparent border">
                     <div>
 
                     </div>
