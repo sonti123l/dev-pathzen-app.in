@@ -25,7 +25,7 @@ export default function LoginPage() {
       const tokens = data.token;
       Cookies.set("token", tokens.access_token);
       Cookies.set("refresh_token", tokens.refresh_token);
-      localStorage.setItem("user details", data?.data?.email);
+      localStorage.setItem("user details", JSON.stringify(data?.data, null, 2));
     },
     onError(error) {
       if (error?.status === 422) {
