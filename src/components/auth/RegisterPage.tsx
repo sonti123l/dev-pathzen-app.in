@@ -573,8 +573,13 @@ export default function RegisterPage() {
                 variant="ghost"
                 className="p-0 h-auto text-blue-500 font-semibold hover:text-blue-600 hover:bg-transparent underline-offset-4 hover:underline transition-all duration-200"
                 onClick={() => navigate({ to: "/login" })}
+                disabled={registerNewUser.isPending}
               >
-                Log In
+                {registerNewUser.isPending ? (
+                  <Loader className="animate-spin" />
+                ) : (
+                  "Log In"
+                )}
               </Button>
             </div>
           </div>
