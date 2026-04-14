@@ -7,7 +7,9 @@ import Header from "./core/Header";
 import SideBarForProject from "./core/SidebarForProject";
 import { Button } from "./ui/button";
 import DashboardIcon from "~/icons/sidebar-icons/dashboard-icon";
-import { Outlet, useNavigate } from "@tanstack/react-router";
+import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import TruncatedItem from "./TruncatedItem";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 const sidebarItems = [
   { name: "Dashboard", icon: DashboardIcon, path: "/dashboard" },
@@ -20,6 +22,7 @@ const sidebarItems = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -28,18 +31,43 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         setIsExpanded={setSidebarExpanded}
       >
         <nav className="flex flex-col gap-1 px-2 pt-2">
-          {sidebarItems.map((item) => (
-            <Button
-              key={item.name}
-              variant="ghost"
-              className={`w-full h-10 gap-3 px-3 py-2 text-sm font-medium 
-                ${sidebarExpanded ? "justify-start" : "justify-center"}`}
-              onClick={() => navigate({ to: `${item.path}` })}
-            >
-              <item.icon size={40} />
-              {sidebarExpanded && <span>{item.name}</span>}
-            </Button>
-          ))}
+          {sidebarItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Button
+                key={item.name}
+                variant="ghost"
+                className={`w-full h-10 gap-3 px-3 py-2 text-sm font-medium 
+                ${sidebarExpanded ? "justify-start" : "justify-center"}
+                 ${
+                   isActive
+                     ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                     : "text-muted-foreground hover:text-foreground"
+                 }`}
+                onClick={() => navigate({ to: `${item.path}` })}
+              >
+                {sidebarExpanded ? (
+                  <>
+                    <item.icon size={40} />
+                    <TruncatedItem name={item.name} />
+                  </>
+                ) : (
+                  <>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>
+                          <item.icon size={40} />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p>{item.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
+                )}
+              </Button>
+            );
+          })}
         </nav>
       </SideBarForProject>
 
