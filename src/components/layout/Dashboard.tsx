@@ -45,17 +45,19 @@ export default function Dashboard() {
   ]);
 
   return (
-    <div className="w-full flex flex-col justify-start p-2 items-center h-screen bg-slate-100">
+    <div className="w-full flex flex-col justify-start p-2 items-center h-screen bg-slate-100 font-">
       {/* Header */}
-      <div className="w-full h-58 m-2 rounded-xl bg-blue-950 flex items-center justify-center">
-        <p className="text-xl text-white">
+      <div className="w-full h-50 m-2 rounded-2xl bg-blue-950 flex flex-col items-start justify-between">
+        <p className="text-base text-gray-400 p-2 font-blod tracking-widest">
           {`Welcome Back ${userDetails.student_name}`.toUpperCase()}
         </p>
+
+
       </div>
 
       {/* Courses Section */}
       <div className="flex flex-col justify-start w-full mt-3 gap-3">
-        <p className="text-2xl">My Courses</p>
+        <p className="text-2xl font-medium">Continue Learning</p>
 
         {/* Domains */}
         <div className="flex justify-start items-center">
