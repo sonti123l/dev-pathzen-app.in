@@ -41,7 +41,7 @@ export default function LoginPage() {
             eachError.key === "password",
         )?.[0];
         setEmailErrorMessage(errorMessage?.message);
-        setPasswordErrorMessage(passwordError?.password);
+        setPasswordErrorMessage(passwordError?.message);
       }
     },
   });
