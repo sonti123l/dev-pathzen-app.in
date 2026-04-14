@@ -2,7 +2,7 @@ import { Button } from "../ui/button";
 import ChevronDown from "~/icons/chevron-icon";
 import MenuIcon from "~/icons/menu-icon";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { getUserDetails } from "~/helpers/constants/getUserDetails";
+import { userDetails } from "~/helpers/constants/getUserDetails";
 import LogoutDoorIcon from "~/icons/auth-icons/logout-door-icon";
 import Cookies from "js-cookie";
 import { useNavigate } from "@tanstack/react-router";
@@ -11,11 +11,10 @@ interface HeaderProps {
 }
 
 export default function Header({ setSidebarExpanded }: HeaderProps) {
-  const userDetails = JSON.parse(getUserDetails);
   const navigate = useNavigate();
 
   return (
-    <header className="flex items-center justify-between h-14 px-3 border-b shrink-0 bg-background z-10 w-full">
+    <header className="flex items-center justify-between h-14 px-3 border-b shrink-0 bg-slate-100 z-10 w-full">
       <Button
         variant="ghost"
         size="icon"

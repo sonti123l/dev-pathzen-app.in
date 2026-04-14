@@ -16,6 +16,7 @@ export default function SideBarForProject({
     <aside
       className={`
         flex flex-col h-full shrink-0 border-r
+        bg-slate-50
         transition-all duration-300 ease-in-out overflow-hidden
         ${isExpanded ? "w-56" : "w-14"}
       `}
