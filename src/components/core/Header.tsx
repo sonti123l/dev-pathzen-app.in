@@ -13,6 +13,12 @@ interface HeaderProps {
 export default function Header({ setSidebarExpanded }: HeaderProps) {
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.clear();
+    Cookies.remove("token");
+    navigate({ to: "/login" });
+  };
+
   return (
     <header className="flex items-center justify-between h-14 px-3 border-b shrink-0 bg-slate-100 z-10 w-full">
       <Button
@@ -54,11 +60,10 @@ export default function Header({ setSidebarExpanded }: HeaderProps) {
                     )}
                 </p>
               </div>
-              <Button className="mt-2 bg-transparent text-black" onClick={() => {
-                localStorage.clearAll();
-                Cookies.remove("token");
-                navigate({to: "/login"});
-                }}>
+              <Button
+                className="mt-2 bg-transparent text-black"
+                onClick={() => handleLogout()}
+              >
                 <LogoutDoorIcon />
               </Button>
             </div>

@@ -7,6 +7,7 @@ import { userLogin } from "~/services/auth/authService";
 import { useNavigate } from "@tanstack/react-router";
 import Cookies from "js-cookie";
 import { Loader } from "lucide-react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -30,6 +31,14 @@ export default function LoginPage() {
       navigate({ to: "/dashboard" });
     },
     onError(error) {
+      if(error?.status === 401 || error?.status === 402){
+        const errors = error?.data.data;
+         const passwordError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "password",
+        )?.[0];
+        toast.error(passwordError);
+      }
       if (error?.status === 422) {
         const errors = error?.data.data;
         const errorMessage = errors?.filter(
@@ -104,7 +113,7 @@ export default function LoginPage() {
                 }}
                 className="h-11 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
-              {emailErrorMessage ? (
+              {emailErrorMessage && !email ? (
                 <p className="text-red-500 text-xs">{emailErrorMessage}</p>
               ) : (
                 ""
@@ -124,7 +133,7 @@ export default function LoginPage() {
                 }
                 className="h-11 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
-              {passwordErrorMessage ? (
+              {passwordErrorMessage && !password ? (
                 <p className="text-red-500 text-xs">{passwordErrorMessage}</p>
               ) : (
                 ""

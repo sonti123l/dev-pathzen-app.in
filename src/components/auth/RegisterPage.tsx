@@ -1,6 +1,6 @@
 import { Input } from "../ui/input";
 import { useEffect, useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getColleges,
   getCoursesByDomainId,
@@ -29,6 +29,7 @@ import { registerUser } from "~/services/auth/authService";
 import TruncatedItem from "../TruncatedItem";
 
 export default function RegisterPage() {
+  const queryClient = useQueryClient();
   const [registrationFormData, setRegistrationFormData] =
     useState<RegisterFormType>({
       name: "",
@@ -203,11 +204,17 @@ export default function RegisterPage() {
     }
 
     if (loadingDomainsFromApi) setLoadingDomains(true);
+
+    if (registrationFormData?.domainId) {
+      setRegistrationFormData({ ...registrationFormData, courseId: 0 });
+      queryClient.invalidateQueries({ queryKey: ["courses-list"] });
+    }
   }, [
     isDomainSuccessfullyRetrieved,
     domainError,
     loadingDomainsFromApi,
     setLoadingDomains,
+    registrationFormData?.domainId,
   ]);
 
   // useEffect for colleges to prevent re-renders
@@ -241,6 +248,7 @@ export default function RegisterPage() {
     coursesListFromDomainIdIsSuccessFullOrNot,
     coursesDataError,
     loadingCoursesData,
+    coursesList,
     setLoadingCourses,
   ]);
 
@@ -296,7 +304,7 @@ export default function RegisterPage() {
                     className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 placeholder-[#b0bbd4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     placeholder="Enter your name"
                   />
-                  {errorMessages?.name ? (
+                  {errorMessages?.name && !registrationFormData?.name ? (
                     <p className="text-red-500 text-xs">
                       {errorMessages?.name}
                     </p>
@@ -319,7 +327,7 @@ export default function RegisterPage() {
                     className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 placeholder-[#b0bbd4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     placeholder="you@example.com"
                   />
-                  {errorMessages?.email ? (
+                  {errorMessages?.email && !registrationFormData?.email ? (
                     <p className="text-red-500 text-xs">
                       {errorMessages?.email}
                     </p>
@@ -347,7 +355,8 @@ export default function RegisterPage() {
                     className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 placeholder-[#b0bbd4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     placeholder="••••••••"
                   />
-                  {errorMessages?.password ? (
+                  {errorMessages?.password &&
+                  !registrationFormData?.password ? (
                     <p className="text-red-500 text-xs">
                       {errorMessages?.password}
                     </p>
@@ -399,7 +408,8 @@ export default function RegisterPage() {
                     className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 placeholder-[#b0bbd4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     placeholder="Enter branch name"
                   />
-                  {errorMessages?.branch_name ? (
+                  {errorMessages?.branch_name &&
+                  !registrationFormData?.branchName ? (
                     <p className="text-red-500 text-xs">
                       {errorMessages?.branch_name}
                     </p>
@@ -433,13 +443,17 @@ export default function RegisterPage() {
                             value={String(eachRecord?.college_id)}
                             className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
                           >
-                            <TruncatedItem name={eachRecord?.college_name} />
+                            <TruncatedItem
+                              name={eachRecord?.college_name}
+                              length={24}
+                            />
                           </SelectItem>
                         ))
                       )}
                     </SelectContent>
                   </Select>
-                  {errorMessages?.college_id ? (
+                  {errorMessages?.college_id &&
+                  !registrationFormData?.collegeId ? (
                     <p className="text-red-500 text-xs">
                       {errorMessages?.college_id}
                     </p>
@@ -477,13 +491,17 @@ export default function RegisterPage() {
                             value={String(eachRecord?.domain_id)}
                             className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
                           >
-                            <TruncatedItem name={eachRecord?.domain_name} />
+                            <TruncatedItem
+                              name={eachRecord?.domain_name}
+                              length={24}
+                            />
                           </SelectItem>
                         ))
                       )}
                     </SelectContent>
                   </Select>
-                  {errorMessages?.domain_id ? (
+                  {errorMessages?.domain_id &&
+                  !registrationFormData?.domainId ? (
                     <p className="text-red-500 text-xs">
                       {errorMessages?.domain_id}
                     </p>
@@ -506,7 +524,7 @@ export default function RegisterPage() {
                     className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 placeholder-[#b0bbd4] focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
                     placeholder="Enter roll number"
                   />
-                  {errorMessages?.roll_no ? (
+                  {errorMessages?.roll_no && !registrationFormData?.rollNo ? (
                     <p className="text-red-500 text-xs">
                       {errorMessages?.roll_no}
                     </p>
@@ -543,13 +561,16 @@ export default function RegisterPage() {
                           value={String(eachRecord?.course_id)}
                           className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
                         >
-                          <TruncatedItem name={eachRecord?.course_name} />
+                          <TruncatedItem
+                            name={eachRecord?.course_name}
+                            length={50}
+                          />
                         </SelectItem>
                       ))
                     )}
                   </SelectContent>
                 </Select>
-                {errorMessages?.course_id ? (
+                {errorMessages?.course_id && !registrationFormData?.courseId ? (
                   <p className="text-red-500 text-xs">
                     {errorMessages?.course_id}
                   </p>
@@ -562,8 +583,13 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 className="w-full py-3.5 px-4 bg-[#3b6cf4] hover:bg-[#2251d1] text-white font-bold rounded-2xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 mt-2"
+                disabled={registerNewUser.isPending}
               >
-                Create Account
+                {registerNewUser.isPending ? (
+                  <Loader className="animate-spin" />
+                ) : (
+                  "Create Account"
+                )}
               </Button>
             </form>
 
@@ -573,13 +599,8 @@ export default function RegisterPage() {
                 variant="ghost"
                 className="p-0 h-auto text-blue-500 font-semibold hover:text-blue-600 hover:bg-transparent underline-offset-4 hover:underline transition-all duration-200"
                 onClick={() => navigate({ to: "/login" })}
-                disabled={registerNewUser.isPending}
               >
-                {registerNewUser.isPending ? (
-                  <Loader className="animate-spin" />
-                ) : (
-                  "Log In"
-                )}
+                Log In
               </Button>
             </div>
           </div>
