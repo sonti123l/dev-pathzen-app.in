@@ -1,29 +1,20 @@
-const CoursesIcon = ({
-  size = 24,
-  color = "currentColor",
-  strokeWidth = 2,
-  className=""
-}) => {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={color}
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      {/* Book */}
-      <path d="M4 19a2 2 0 0 1 2-2h14" />
-      <path d="M6 17V5a2 2 0 0 1 2-2h12v16H8a2 2 0 0 0-2 2z" />
-      
-      {/* Divider line (pages) */}
-      <line x1="12" y1="3" x2="12" y2="19" />
-    </svg>
-  );
-};
+const CoursesIcon = ({ size = 20, color = "currentColor" }) => (
+  <svg
+    width={size}
+    height={size}
+    style={{ width: size, height: size, flexShrink: 0 }}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polygon points="12 2 22 8 12 14 2 8 12 2" />
+    <path d="M6 11v5c0 2 2.5 4 6 4s6-2 6-4v-5" />
+    <line x1="22" y1="8" x2="22" y2="14" />
+    <circle cx="22" cy="15" r="1" fill={color} stroke="none" />
+  </svg>
+);
 
 export default CoursesIcon;

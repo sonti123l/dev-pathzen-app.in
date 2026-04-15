@@ -49,7 +49,7 @@ export default function Dashboard() {
   ]);
 
   return (
-    <div className="w-full flex flex-col justify-start p-4 items-center h-screen bg-slate-100">
+    <div className="w-full flex flex-col justify-start p-5 items-center h-screen bg-slate-100 overflow-y-auto">
       <div
         className="w-full rounded-3xl p-8 flex justify-between items-center 
 bg-linear-to-r from-indigo-900 via-purple-900 to-blue-900 shadow-lg"
@@ -57,36 +57,23 @@ bg-linear-to-r from-indigo-900 via-purple-900 to-blue-900 shadow-lg"
         {/* LEFT SECTION */}
         <div className="flex flex-col gap-4">
           <div>
-            <p className="text-sm text-gray-400 tracking-widest">
+            <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-white/55 m-0">
               WELCOME BACK
             </p>
 
-            <h2 className="text-3xl font-bold text-white">
+            <h1 className="text-[28px] font-extrabold tracking-tight text-white leading-[1.15] mt-1.5 mb-2">
               {`${getDayString}, ${userDetails?.student_name}`}
-            </h2>
-
-            <p className="text-gray-400 text-sm mt-1">
-              You're on a 21-day streak — keep building your skills.
-            </p>
+            </h1>
           </div>
 
           {/* BUTTONS */}
           <div className="flex gap-4 mt-2">
-            <button
-              className="px-5 py-2 rounded-xl 
-      bg-linear-to-r from-indigo-500 to-purple-500 
-      text-white font-medium shadow-md hover:scale-105 transition"
-            >
+            <Button className="inline-flex h-11 items-center gap-2 bg-[#6C63FF] hover:bg-[#5b52ee] text-white text-[14px] font-semibold px-5 py-2.75 rounded-[10px] tracking-[0.01em] transition-colors cursor-pointer border-none" onClick={() => navigate({to: `/course/${userDetails.student_course_id}`})}>
               ▶ Continue Learning
-            </button>
-
-            <button
-              onClick={() => navigate({ to: "/courses" })}
-              className="px-5 py-2 rounded-xl border border-gray-400 
-        text-gray-200 hover:bg-gray-800 transition"
-            >
+            </Button>
+            <Button className="inline-flex h-11 items-center bg-white/8 hover:bg-white/15 text-white text-[14px] font-semibold px-5 py-2.75 rounded-[10px] border border-white/15 tracking-[0.01em] transition-colors cursor-pointer" onClick={() => navigate({to: '/courses'})}>
               Browse Courses
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -94,7 +81,6 @@ bg-linear-to-r from-indigo-900 via-purple-900 to-blue-900 shadow-lg"
       {/* Courses Section */}
       <div className="flex flex-col justify-start w-full mt-3 gap-3">
         <p className="text-2xl font-medium">Continue Learning</p>
-        
 
         {/* Domains */}
         <div className="flex justify-start items-center">

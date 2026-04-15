@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CourseIdIndexRouteImport } from './routes/course/$id/index'
 import { Route as LayoutSettingsIndexRouteImport } from './routes/_layout/settings/index'
 import { Route as LayoutProgressIndexRouteImport } from './routes/_layout/progress/index'
 import { Route as LayoutDashboardIndexRouteImport } from './routes/_layout/dashboard/index'
@@ -26,6 +27,11 @@ const LayoutRoute = LayoutRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CourseIdIndexRoute = CourseIdIndexRouteImport.update({
+  id: '/course/$id/',
+  path: '/course/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LayoutSettingsIndexRoute = LayoutSettingsIndexRouteImport.update({
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof LayoutDashboardIndexRoute
   '/progress/': typeof LayoutProgressIndexRoute
   '/settings/': typeof LayoutSettingsIndexRoute
+  '/course/$id/': typeof CourseIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof LayoutDashboardIndexRoute
   '/progress': typeof LayoutProgressIndexRoute
   '/settings': typeof LayoutSettingsIndexRoute
+  '/course/$id': typeof CourseIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/_layout/dashboard/': typeof LayoutDashboardIndexRoute
   '/_layout/progress/': typeof LayoutProgressIndexRoute
   '/_layout/settings/': typeof LayoutSettingsIndexRoute
+  '/course/$id/': typeof CourseIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/progress/'
     | '/settings/'
+    | '/course/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/progress'
     | '/settings'
+    | '/course/$id'
   id:
     | '__root__'
     | '/'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/_layout/dashboard/'
     | '/_layout/progress/'
     | '/_layout/settings/'
+    | '/course/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -136,6 +148,7 @@ export interface RootRouteChildren {
   LayoutRoute: typeof LayoutRouteWithChildren
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthRegisterIndexRoute: typeof AuthRegisterIndexRoute
+  CourseIdIndexRoute: typeof CourseIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -152,6 +165,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/course/$id/': {
+      id: '/course/$id/'
+      path: '/course/$id'
+      fullPath: '/course/$id/'
+      preLoaderRoute: typeof CourseIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_layout/settings/': {
@@ -230,6 +250,7 @@ const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthRegisterIndexRoute: AuthRegisterIndexRoute,
+  CourseIdIndexRoute: CourseIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
