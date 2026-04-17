@@ -129,7 +129,7 @@ bg-linear-to-r from-indigo-900 via-purple-900 to-blue-900 shadow-lg"
                               </p>
 
                               <div className="w-full flex justify-end p-2">
-                                <Button className="bg-transparent border border-white h-10">
+                                <Button className="bg-transparent border border-white h-10" onClick={() => navigate({to: `/course/${userDetails.student_course_id}`})}>
                                   Continue
                                 </Button>
                               </div>

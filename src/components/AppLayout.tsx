@@ -40,11 +40,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 className={`w-full h-10 gap-3 px-3 py-2 text-sm font-medium 
                 ${sidebarExpanded ? "justify-start" : "justify-center"}
                  ${
-                   isActive
+                   isActive 
                      ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground w-full"
                      : "text-muted-foreground hover:text-foreground"
                  }`}
-                onClick={() => navigate({ to: `${item.path}` })}
+                onClick={() => navigate({ to: `${item.path}` })}                
               >
                 {sidebarExpanded ? (
                   <>
