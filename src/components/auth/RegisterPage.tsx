@@ -125,7 +125,9 @@ export default function RegisterPage() {
       return response?.data;
     },
     onSuccess: (data) => {
-      toast.success(data);
+      console.log(data);
+      console.log("user is created")
+      toast.success(data.data.success_message);
     },
     onError: (error) => {
       if (error?.status === 422) {

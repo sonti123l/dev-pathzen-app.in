@@ -40,7 +40,7 @@ export default function Header({ setSidebarExpanded }: HeaderProps) {
             aria-label="User menu"
           >
             <div className="h-6 w-6 rounded-full flex justify-center items-center bg-violet-600 text-white">
-              {userDetails?.student_name.slice(0, 1).toUpperCase()}
+              {userDetails?.student_name?.slice(0, 1).toUpperCase()}
             </div>
             <ChevronDown className="h-3 w-3" />
           </Button>

@@ -18,7 +18,7 @@ export default function SideBarForProject({
         flex flex-col h-full shrink-0 border-r
         bg-slate-50
         transition-all duration-300 ease-in-out overflow-hidden
-        ${isExpanded ? "w-56" : "w-14"}
+        ${isExpanded ? "w-56" : "w-20"}
       `}
     >
       <div className={`flex items-center gap-3 px-3 h-14 shrink-0 border-b ${!isExpanded && "justify-center"}`}>

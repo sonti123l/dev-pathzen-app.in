@@ -1,7 +1,6 @@
 import { useState } from "react";
-import CoursesIcon from "~/icons/sidebar-icons/courses-icon";
 import ProgressIcon from "~/icons/sidebar-icons/progress-icon";
-import CertificateIcon from "~/icons/sidebar-icons/certificates-icon";
+import CertificationsIcon from "~/icons/sidebar-icons/certificates-icon";
 import SettingsIcon from "~/icons/sidebar-icons/settings-icon";
 import Header from "./core/Header";
 import SideBarForProject from "./core/SidebarForProject";
@@ -10,12 +9,13 @@ import DashboardIcon from "~/icons/sidebar-icons/dashboard-icon";
 import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import TruncatedItem from "./TruncatedItem";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import CoursesIcon from "~/icons/sidebar-icons/courses-icon";
 
 const sidebarItems = [
   { name: "Dashboard", icon: DashboardIcon, path: "/dashboard" },
   { name: "All courses", icon: CoursesIcon, path: "/courses" },
   { name: "My progress", icon: ProgressIcon, path: "/progress" },
-  { name: "Certifications", icon: CertificateIcon, path: "/certifications" },
+  { name: "Certifications", icon: CertificationsIcon, path: "/certifications" },
   { name: "Settings", icon: SettingsIcon, path: "/settings" },
 ];
 
@@ -40,23 +40,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 className={`w-full h-10 gap-3 px-3 py-2 text-sm font-medium 
                 ${sidebarExpanded ? "justify-start" : "justify-center"}
                  ${
-                   isActive
-                     ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                   isActive 
+                     ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground w-full"
                      : "text-muted-foreground hover:text-foreground"
                  }`}
-                onClick={() => navigate({ to: `${item.path}` })}
+                onClick={() => navigate({ to: `${item.path}` })}                
               >
                 {sidebarExpanded ? (
                   <>
-                    <item.icon size={40} />
-                    <TruncatedItem name={item.name} />
+                    <item.icon size={22} />
+                    <TruncatedItem name={item.name} length={24} />
                   </>
                 ) : (
                   <>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span>
-                          <item.icon size={40} />
+                          <item.icon size={22} />
                         </span>
                       </TooltipTrigger>
                       <TooltipContent side="right">
