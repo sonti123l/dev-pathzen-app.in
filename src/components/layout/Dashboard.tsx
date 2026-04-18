@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [courseDetailsFromApi, setCourseDetailsFromApi] = useState({
     course: [],
     domain: [],
+    
   });
   const navigate = useNavigate();
   const getDayString = getDayAccordingToTime();
