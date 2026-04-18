@@ -5,13 +5,18 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { userDetails } from "~/helpers/constants/getUserDetails";
 import LogoutDoorIcon from "~/icons/auth-icons/logout-door-icon";
 import Cookies from "js-cookie";
-import { useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { Input } from "../ui/input";
+import SearchIcon from "~/icons/search-icon";
 interface HeaderProps {
   setSidebarExpanded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function Header({ setSidebarExpanded }: HeaderProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  console.log(location);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -30,6 +35,20 @@ export default function Header({ setSidebarExpanded }: HeaderProps) {
       >
         <MenuIcon className="h-4 w-4" />
       </Button>
+
+      <div className="relative flex justify-center items-center">
+        {location?.pathname === "/courses" && (
+          <>
+            <Input
+              type="search"
+              placeholder="Search for courses"
+              className="w-100 h-10 placeholder:pl-8"
+            />
+
+            <SearchIcon className="absolute left-0.5 pl-2 ml-2"/>
+          </>
+        )}
+      </div>
 
       <Popover>
         <PopoverTrigger>

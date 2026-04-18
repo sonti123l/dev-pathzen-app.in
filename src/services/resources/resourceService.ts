@@ -35,3 +35,12 @@ export const getCourseDetailsByCourseId = async (courseId: number) => {
     throw err;
   }
 };
+
+export const getAllCourses = async () => {
+  try {
+    const response = await $fetch.get(`/api/courses`);
+    return response;
+  } catch (err) {
+    throw err;
+  }
+};
