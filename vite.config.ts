@@ -6,7 +6,7 @@ import { nitro } from "nitro/vite";
 
 export default defineConfig({
   server: {
-    port: 5757,
+    port: 8787,
   },
   resolve: {
     tsconfigPaths: true,
