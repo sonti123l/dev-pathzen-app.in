@@ -16,8 +16,6 @@ export default function Header({ setSidebarExpanded }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  console.log(location);
-
   const handleLogout = () => {
     localStorage.clear();
     Cookies.remove("token");
@@ -45,7 +43,7 @@ export default function Header({ setSidebarExpanded }: HeaderProps) {
               className="w-100 h-10 placeholder:pl-8"
             />
 
-            <SearchIcon className="absolute left-0.5 pl-2 ml-2"/>
+            <SearchIcon className="absolute left-0.5 pl-2 ml-2" />
           </>
         )}
       </div>

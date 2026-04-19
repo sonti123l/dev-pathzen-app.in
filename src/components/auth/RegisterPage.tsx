@@ -125,8 +125,6 @@ export default function RegisterPage() {
       return response?.data;
     },
     onSuccess: (data) => {
-      console.log(data);
-      console.log("user is created")
       toast.success(data.data.success_message);
     },
     onError: (error) => {
