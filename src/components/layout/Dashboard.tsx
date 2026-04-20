@@ -13,8 +13,10 @@ export default function Dashboard() {
   const [courseDetailsFromApi, setCourseDetailsFromApi] = useState({
     course: [],
     domain: [],
-    
   });
+
+  const [ userDetailsData, setUserDetailsData ] = useState({});
+  
   const navigate = useNavigate();
   const getDayString = getDayAccordingToTime();
   const {
@@ -26,11 +28,11 @@ export default function Dashboard() {
     queryKey: ["course-details"],
     queryFn: async () => {
       const res = await getCourseDetailsByCourseId(
-        userDetails?.student_course_id,
+        userDetailsData?.student_course_id,
       );
       return res?.data?.data?.data;
     },
-    enabled: !!userDetails?.student_course_id,
+    enabled: !!userDetailsData?.student_course_id,
     refetchOnWindowFocus: false,
   });
 
@@ -42,11 +44,16 @@ export default function Dashboard() {
     if (errorInCourseDetails) {
       toast.error("Course details are not fetched");
     }
+
+    if(userDetails) {
+      setUserDetailsData(userDetails);
+    }
   }, [
     courseDetails,
     courseDetailsFetchingSuccessfull,
     errorInCourseDetails,
     setCourseDetailsFromApi,
+    userDetails
   ]);
 
   return (
@@ -63,7 +70,7 @@ bg-linear-to-r from-indigo-900 via-purple-900 to-blue-900 shadow-lg"
             </p>
 
             <h1 className="text-[28px] font-extrabold tracking-tight text-white leading-[1.15] mt-1.5 mb-2">
-              {`${getDayString}, ${userDetails?.student_name}`}
+              {`${getDayString}, ${userDetailsData?.student_name}`}
             </h1>
           </div>
 
