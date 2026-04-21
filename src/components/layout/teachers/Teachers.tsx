@@ -63,24 +63,18 @@ function avatarColor(id: number) {
   return AVATAR_COLORS[id % AVATAR_COLORS.length];
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   Main page
-══════════════════════════════════════════════════════════════════════ */
 export default function DisplayTeacher() {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<ViewMode>("table");
   const [teachers, setTeachers] = useState<Teacher[]>(MOCK_TEACHERS);
 
-  /* wire your real submit here */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // your API call goes here
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6 font-sans">
 
-      {/* ── Page header ─────────────────────────────────────────────── */}
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-gray-900 dark:text-white tracking-tight">
@@ -91,9 +85,7 @@ export default function DisplayTeacher() {
           </p>
         </div>
 
-        {/* View toggle + Add button */}
         <div className="flex items-center gap-2">
-          {/* Toggle */}
           <div className="flex items-center rounded-lg border border-gray-200 bg-white p-0.5 dark:border-gray-700 dark:bg-gray-900">
             <ToggleBtn active={view === "table"} onClick={() => setView("table")} label="Table view">
               <TableIcon />
@@ -103,7 +95,6 @@ export default function DisplayTeacher() {
             </ToggleBtn>
           </div>
 
-          {/* Add teacher */}
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
@@ -116,7 +107,6 @@ export default function DisplayTeacher() {
         </div>
       </div>
 
-      {/* ── Content ──────────────────────────────────────────────────── */}
       <AnimatePresence mode="wait">
         {view === "table" ? (
           <motion.div
@@ -141,7 +131,6 @@ export default function DisplayTeacher() {
         )}
       </AnimatePresence>
 
-      {/* ── Modal ────────────────────────────────────────────────────── */}
       <AddTeacherModal
         open={open}
         onClose={() => setOpen(false)}
@@ -151,9 +140,6 @@ export default function DisplayTeacher() {
   );
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   Table view
-══════════════════════════════════════════════════════════════════════ */
 function TeacherTable({ teachers }: { teachers: Teacher[] }) {
   const cols = [
     { key: "teacher_name", label: "Name" },
@@ -232,9 +218,6 @@ function TeacherTable({ teachers }: { teachers: Teacher[] }) {
   );
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   Card view
-══════════════════════════════════════════════════════════════════════ */
 function TeacherCards({ teachers }: { teachers: Teacher[] }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

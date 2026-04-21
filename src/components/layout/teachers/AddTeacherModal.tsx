@@ -11,8 +11,6 @@ interface AddTeacherModalProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-
-
 export default function AddTeacherModal({
   open,
   onClose,
@@ -20,7 +18,6 @@ export default function AddTeacherModal({
 }: AddTeacherModalProps) {
   return (
     <>
-      {/* FAB — floating add button */}
       <motion.button
         onClick={onClose}
         whileHover={{ scale: 1.08 }}
@@ -34,7 +31,6 @@ export default function AddTeacherModal({
       <AnimatePresence>
         {open && (
           <>
-            {/* Backdrop */}
             <motion.div
               key="backdrop"
               initial={{ opacity: 0 }}
@@ -45,7 +41,6 @@ export default function AddTeacherModal({
               className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
             />
 
-            {/* Modal card */}
             <motion.div
               key="modal"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -58,7 +53,6 @@ export default function AddTeacherModal({
                 onClick={(e) => e.stopPropagation()}
                 className="w-full max-w-[460px] overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
               >
-                {/* Header */}
                 <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800">
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-950">
@@ -81,16 +75,13 @@ export default function AddTeacherModal({
                   </button>
                 </div>
 
-                {/* Form */}
                 <form onSubmit={onSubmit} className="px-5 py-5">
-                  {/* Row — ID + Name */}
                   <div className="mb-3.5 grid grid-cols-2 gap-3">
                     <Field
                       label="Full name"
                       name="teacher_name"
                       placeholder="John Doe"
                     />
-                    {/* Email */}
                     <Field
                       label="Email address"
                       name="teacher_email_id"
@@ -100,7 +91,6 @@ export default function AddTeacherModal({
                     />
                   </div>
 
-                  {/* Password */}
                   <Field
                     label="Password"
                     name="teacher_password"
@@ -111,7 +101,6 @@ export default function AddTeacherModal({
 
                   <div className="my-4 border-t border-gray-100 dark:border-gray-800" />
 
-                  {/* Row — Course + Experience */}
                   <div className="mb-3.5 grid grid-cols-2 gap-3">
                     <Field
                       label="Course"
@@ -126,7 +115,6 @@ export default function AddTeacherModal({
                     />
                   </div>
 
-                  {/* Technical skills */}
                   <Field
                     label="Technical skills"
                     name="teacher_technicalities"
@@ -134,7 +122,6 @@ export default function AddTeacherModal({
                     className="mb-3.5"
                   />
 
-                  {/* User ID */}
                   <Field
                     label="User ID (optional)"
                     name="teacher_user_id"
@@ -143,7 +130,6 @@ export default function AddTeacherModal({
                     className="mb-5"
                   />
 
-                  {/* Actions */}
                   <div className="flex items-center justify-end gap-2">
                     <button
                       type="button"

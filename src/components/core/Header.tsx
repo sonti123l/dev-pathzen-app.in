@@ -47,12 +47,19 @@ export default function Header({ setSidebarExpanded }: HeaderProps) {
   useEffect(() => {
     const userDetails = getUserFromStorage();
     if (userDetails && userDetails?.role === "STUDENT") {
+      setAdminUser({
+        role: "",
+        admin_id: 0,
+        admin_name: "",
+        admin_mail: "",
+      });
       setUser(userDetails);
     } else if (userDetails?.role === "ADMIN") {
       setAdminUser(userDetails);
     }
-  }, []);
+  }, [setUser, setAdminUser]);
 
+  console.log(adminUser);
   return (
     <header className="flex items-center justify-between h-14 px-3 border-b shrink-0 bg-slate-100 z-10 w-full">
       <Button
@@ -88,7 +95,7 @@ export default function Header({ setSidebarExpanded }: HeaderProps) {
             aria-label="User menu"
           >
             <div className="h-6 w-6 rounded-full flex justify-center items-center bg-violet-600 text-white">
-              {adminUser
+              {adminUser && adminUser.admin_name.length > 0
                 ? adminUser?.admin_name?.slice(0, 1).toUpperCase()
                 : user?.student_name?.slice(0, 1).toUpperCase()}
             </div>
@@ -100,14 +107,14 @@ export default function Header({ setSidebarExpanded }: HeaderProps) {
             <div className="w-full flex justify-evenly items-center gap-2">
               <div className="flex justify-start items-center w-46 gap-2 h-10">
                 <div className="w-8 h-8 rounded-full bg-violet-600 text-white justify-center items-center flex">
-                  {adminUser
+                  {adminUser && adminUser?.admin_name.length>0
                     ? adminUser?.admin_name?.slice(0, 1).toUpperCase()
                     : user?.student_name.slice(0, 1).toUpperCase()}
                 </div>
                 <p className="text-base">
-                  {adminUser
+                  {adminUser && adminUser.admin_name?.length > 0
                     ? adminUser?.admin_name?.slice(0, 1).toUpperCase() +
-                      adminUser.admin_name.slice(1, user.student_name.length)
+                      adminUser.admin_name.slice(1, adminUser.admin_name.length)
                     : user.student_name.slice(0, 1).toUpperCase() +
                       user.student_name.slice(1, user.student_name.length)}
                 </p>
