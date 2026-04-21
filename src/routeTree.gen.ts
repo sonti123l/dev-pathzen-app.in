@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CourseIdIndexRouteImport } from './routes/course/$id/index'
+import { Route as LayoutTeachersIndexRouteImport } from './routes/_layout/teachers/index'
 import { Route as LayoutSettingsIndexRouteImport } from './routes/_layout/settings/index'
 import { Route as LayoutProgressIndexRouteImport } from './routes/_layout/progress/index'
 import { Route as LayoutDashboardIndexRouteImport } from './routes/_layout/dashboard/index'
@@ -33,6 +34,11 @@ const CourseIdIndexRoute = CourseIdIndexRouteImport.update({
   id: '/course/$id/',
   path: '/course/$id/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LayoutTeachersIndexRoute = LayoutTeachersIndexRouteImport.update({
+  id: '/teachers/',
+  path: '/teachers/',
+  getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutSettingsIndexRoute = LayoutSettingsIndexRouteImport.update({
   id: '/settings/',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof LayoutDashboardIndexRoute
   '/progress/': typeof LayoutProgressIndexRoute
   '/settings/': typeof LayoutSettingsIndexRoute
+  '/teachers/': typeof LayoutTeachersIndexRoute
   '/course/$id/': typeof CourseIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof LayoutDashboardIndexRoute
   '/progress': typeof LayoutProgressIndexRoute
   '/settings': typeof LayoutSettingsIndexRoute
+  '/teachers': typeof LayoutTeachersIndexRoute
   '/course/$id': typeof CourseIdIndexRoute
 }
 export interface FileRoutesById {
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/_layout/dashboard/': typeof LayoutDashboardIndexRoute
   '/_layout/progress/': typeof LayoutProgressIndexRoute
   '/_layout/settings/': typeof LayoutSettingsIndexRoute
+  '/_layout/teachers/': typeof LayoutTeachersIndexRoute
   '/course/$id/': typeof CourseIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/progress/'
     | '/settings/'
+    | '/teachers/'
     | '/course/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/progress'
     | '/settings'
+    | '/teachers'
     | '/course/$id'
   id:
     | '__root__'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/_layout/dashboard/'
     | '/_layout/progress/'
     | '/_layout/settings/'
+    | '/_layout/teachers/'
     | '/course/$id/'
   fileRoutesById: FileRoutesById
 }
@@ -173,6 +185,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/course/$id/'
       preLoaderRoute: typeof CourseIdIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_layout/teachers/': {
+      id: '/_layout/teachers/'
+      path: '/teachers'
+      fullPath: '/teachers/'
+      preLoaderRoute: typeof LayoutTeachersIndexRouteImport
+      parentRoute: typeof LayoutRoute
     }
     '/_layout/settings/': {
       id: '/_layout/settings/'
@@ -232,6 +251,7 @@ interface LayoutRouteChildren {
   LayoutDashboardIndexRoute: typeof LayoutDashboardIndexRoute
   LayoutProgressIndexRoute: typeof LayoutProgressIndexRoute
   LayoutSettingsIndexRoute: typeof LayoutSettingsIndexRoute
+  LayoutTeachersIndexRoute: typeof LayoutTeachersIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
@@ -240,6 +260,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutDashboardIndexRoute: LayoutDashboardIndexRoute,
   LayoutProgressIndexRoute: LayoutProgressIndexRoute,
   LayoutSettingsIndexRoute: LayoutSettingsIndexRoute,
+  LayoutTeachersIndexRoute: LayoutTeachersIndexRoute,
 }
 
 const LayoutRouteWithChildren =
