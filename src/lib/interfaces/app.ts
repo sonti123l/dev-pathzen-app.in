@@ -42,7 +42,7 @@ export interface RegisterErrorMessage{
 
 export interface userDetailsType{
   branch_name: string,
-  is_user: string,
+  role: string,
   student_college_id: number,
   student_course_id: number,
   student_email_id: string,

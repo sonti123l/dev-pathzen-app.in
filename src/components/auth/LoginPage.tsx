@@ -29,7 +29,14 @@ export default function LoginPage() {
       Cookies.set("token", tokens.access_token);
       Cookies.set("refresh_token", tokens.refresh_token);
       localStorage.setItem("user_details", JSON.stringify(data?.data, null, 2));
+      if(data?.data?.role === "STUDENT"){
       navigate({ to: "/dashboard" });
+      }else if(data?.data?.role === "ADMIN"){
+              navigate({ to: "/teachers" });
+      }else{
+        navigate({to: "/plan"})
+      }
+
     },
     onError(error) {
       if (error?.status === 401 || error?.status === 402) {

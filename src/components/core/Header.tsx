@@ -17,13 +17,20 @@ interface HeaderProps {
 export default function Header({ setSidebarExpanded }: HeaderProps) {
   const [user, setUser] = useState<userDetailsType>({
     branch_name: "",
-    is_user: "",
+    role: "",
     student_college_id: 0,
     student_course_id: 0,
     student_email_id: "",
     student_id: 0,
     student_name: "",
     student_roll_no: 0,
+  });
+
+  const [adminUser, setAdminUser] = useState({
+    role: "",
+    admin_id: 0,
+    admin_name: "",
+    admin_mail: "",
   });
 
   const navigate = useNavigate();
@@ -39,9 +46,10 @@ export default function Header({ setSidebarExpanded }: HeaderProps) {
 
   useEffect(() => {
     const userDetails = getUserFromStorage();
-    console.log(userDetails);
-    if (userDetails) {
+    if (userDetails && userDetails?.role === "STUDENT") {
       setUser(userDetails);
+    } else if (userDetails?.role === "ADMIN") {
+      setAdminUser(userDetails);
     }
   }, []);
 
@@ -80,7 +88,9 @@ export default function Header({ setSidebarExpanded }: HeaderProps) {
             aria-label="User menu"
           >
             <div className="h-6 w-6 rounded-full flex justify-center items-center bg-violet-600 text-white">
-              {user?.student_name?.slice(0, 1).toUpperCase()}
+              {adminUser
+                ? adminUser?.admin_name?.slice(0, 1).toUpperCase()
+                : user?.student_name?.slice(0, 1).toUpperCase()}
             </div>
             <ChevronDown className="h-3 w-3" />
           </Button>
@@ -90,11 +100,16 @@ export default function Header({ setSidebarExpanded }: HeaderProps) {
             <div className="w-full flex justify-evenly items-center gap-2">
               <div className="flex justify-start items-center w-46 gap-2 h-10">
                 <div className="w-8 h-8 rounded-full bg-violet-600 text-white justify-center items-center flex">
-                  {user?.student_name.slice(0, 1).toUpperCase()}
+                  {adminUser
+                    ? adminUser?.admin_name?.slice(0, 1).toUpperCase()
+                    : user?.student_name.slice(0, 1).toUpperCase()}
                 </div>
                 <p className="text-base">
-                  {user.student_name.slice(0, 1).toUpperCase() +
-                    user.student_name.slice(1, user.student_name.length)}
+                  {adminUser
+                    ? adminUser?.admin_name?.slice(0, 1).toUpperCase() +
+                      adminUser.admin_name.slice(1, user.student_name.length)
+                    : user.student_name.slice(0, 1).toUpperCase() +
+                      user.student_name.slice(1, user.student_name.length)}
                 </p>
               </div>
               <Button
