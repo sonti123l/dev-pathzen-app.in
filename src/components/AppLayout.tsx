@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "./core/Header";
 import SideBarForProject from "./core/SidebarForProject";
 import { Button } from "./ui/button";
@@ -6,11 +6,25 @@ import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import TruncatedItem from "./TruncatedItem";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { sidebarItems } from "~/helpers/constants/sidebarMenu";
+import { getUserFromStorage } from "~/helpers/constants/getUserDetails";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarItemsAccordingToRole, setSidebarItemsAccordingToRole] =
+    useState([]);
+
+  useEffect(() => {
+    const userDetails = getUserFromStorage();
+
+    if (userDetails) {
+      const details = sidebarItems?.filter(
+        (eachRecord) => eachRecord?.isUser === userDetails?.role,
+      );
+      setSidebarItemsAccordingToRole(details);
+    }
+  }, []);
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -19,7 +33,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         setIsExpanded={setSidebarExpanded}
       >
         <nav className="flex flex-col gap-1 px-2 pt-2">
-          {sidebarItems.map((item) => {
+          {sidebarItemsAccordingToRole.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Button

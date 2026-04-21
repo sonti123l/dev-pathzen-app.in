@@ -15,6 +15,7 @@ import { Route as CourseIdIndexRouteImport } from './routes/course/$id/index'
 import { Route as LayoutTeachersIndexRouteImport } from './routes/_layout/teachers/index'
 import { Route as LayoutSettingsIndexRouteImport } from './routes/_layout/settings/index'
 import { Route as LayoutProgressIndexRouteImport } from './routes/_layout/progress/index'
+import { Route as LayoutPlanIndexRouteImport } from './routes/_layout/plan/index'
 import { Route as LayoutDashboardIndexRouteImport } from './routes/_layout/dashboard/index'
 import { Route as LayoutCoursesIndexRouteImport } from './routes/_layout/courses/index'
 import { Route as LayoutCertificationsIndexRouteImport } from './routes/_layout/certifications/index'
@@ -48,6 +49,11 @@ const LayoutSettingsIndexRoute = LayoutSettingsIndexRouteImport.update({
 const LayoutProgressIndexRoute = LayoutProgressIndexRouteImport.update({
   id: '/progress/',
   path: '/progress/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutPlanIndexRoute = LayoutPlanIndexRouteImport.update({
+  id: '/plan/',
+  path: '/plan/',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutDashboardIndexRoute = LayoutDashboardIndexRouteImport.update({
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/certifications/': typeof LayoutCertificationsIndexRoute
   '/courses/': typeof LayoutCoursesIndexRoute
   '/dashboard/': typeof LayoutDashboardIndexRoute
+  '/plan/': typeof LayoutPlanIndexRoute
   '/progress/': typeof LayoutProgressIndexRoute
   '/settings/': typeof LayoutSettingsIndexRoute
   '/teachers/': typeof LayoutTeachersIndexRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/certifications': typeof LayoutCertificationsIndexRoute
   '/courses': typeof LayoutCoursesIndexRoute
   '/dashboard': typeof LayoutDashboardIndexRoute
+  '/plan': typeof LayoutPlanIndexRoute
   '/progress': typeof LayoutProgressIndexRoute
   '/settings': typeof LayoutSettingsIndexRoute
   '/teachers': typeof LayoutTeachersIndexRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/_layout/certifications/': typeof LayoutCertificationsIndexRoute
   '/_layout/courses/': typeof LayoutCoursesIndexRoute
   '/_layout/dashboard/': typeof LayoutDashboardIndexRoute
+  '/_layout/plan/': typeof LayoutPlanIndexRoute
   '/_layout/progress/': typeof LayoutProgressIndexRoute
   '/_layout/settings/': typeof LayoutSettingsIndexRoute
   '/_layout/teachers/': typeof LayoutTeachersIndexRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/certifications/'
     | '/courses/'
     | '/dashboard/'
+    | '/plan/'
     | '/progress/'
     | '/settings/'
     | '/teachers/'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/certifications'
     | '/courses'
     | '/dashboard'
+    | '/plan'
     | '/progress'
     | '/settings'
     | '/teachers'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/_layout/certifications/'
     | '/_layout/courses/'
     | '/_layout/dashboard/'
+    | '/_layout/plan/'
     | '/_layout/progress/'
     | '/_layout/settings/'
     | '/_layout/teachers/'
@@ -207,6 +219,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutProgressIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/plan/': {
+      id: '/_layout/plan/'
+      path: '/plan'
+      fullPath: '/plan/'
+      preLoaderRoute: typeof LayoutPlanIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/dashboard/': {
       id: '/_layout/dashboard/'
       path: '/dashboard'
@@ -249,6 +268,7 @@ interface LayoutRouteChildren {
   LayoutCertificationsIndexRoute: typeof LayoutCertificationsIndexRoute
   LayoutCoursesIndexRoute: typeof LayoutCoursesIndexRoute
   LayoutDashboardIndexRoute: typeof LayoutDashboardIndexRoute
+  LayoutPlanIndexRoute: typeof LayoutPlanIndexRoute
   LayoutProgressIndexRoute: typeof LayoutProgressIndexRoute
   LayoutSettingsIndexRoute: typeof LayoutSettingsIndexRoute
   LayoutTeachersIndexRoute: typeof LayoutTeachersIndexRoute
@@ -258,6 +278,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutCertificationsIndexRoute: LayoutCertificationsIndexRoute,
   LayoutCoursesIndexRoute: LayoutCoursesIndexRoute,
   LayoutDashboardIndexRoute: LayoutDashboardIndexRoute,
+  LayoutPlanIndexRoute: LayoutPlanIndexRoute,
   LayoutProgressIndexRoute: LayoutProgressIndexRoute,
   LayoutSettingsIndexRoute: LayoutSettingsIndexRoute,
   LayoutTeachersIndexRoute: LayoutTeachersIndexRoute,
