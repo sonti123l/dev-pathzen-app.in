@@ -39,3 +39,14 @@ export interface RegisterErrorMessage{
   roll_no?: string,
   course_id?: string
 }
+
+export interface userDetailsType{
+  branch_name: string,
+  is_user: string,
+  student_college_id: number,
+  student_course_id: number,
+  student_email_id: string,
+  student_id: number,
+  student_name: string,
+  student_roll_no: number,
+}

@@ -27,8 +27,11 @@ import { useNavigate } from "@tanstack/react-router";
 import { registerPayload } from "~/lib/interfaces/auth";
 import { registerUser } from "~/services/auth/authService";
 import TruncatedItem from "../TruncatedItem";
+import { useDebounce } from "~/helpers/constants/useDebounce";
 
 export default function RegisterPage() {
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
   const queryClient = useQueryClient();
   const [registrationFormData, setRegistrationFormData] =
     useState<RegisterFormType>({
@@ -75,9 +78,13 @@ export default function RegisterPage() {
     isError: isGetCollegesGotError,
     isLoading: isCollegesListLoading,
   } = useQuery({
-    queryKey: ["colleges-list"],
+    queryKey: ["colleges-list", debouncedSearch],
     queryFn: async () => {
-      const res = await getColleges();
+      const res = await getColleges({
+        page: 1,
+        limit: 10,
+        search: debouncedSearch || "",
+      });
       return res?.data;
     },
     staleTime: 10 * 60 * 1000,
@@ -432,24 +439,47 @@ export default function RegisterPage() {
                     <SelectTrigger className="w-full px-4 py-3 bg-[#f3f6fd] border border-[#e0e8f7] rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all">
                       <SelectValue placeholder="Select college" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-[#e0e8f7] rounded-xl shadow-lg">
-                      {collegesDataLoading ? (
-                        <Loader />
-                      ) : (
-                        collegeListData?.length > 0 &&
-                        collegeListData?.map((eachRecord) => (
-                          <SelectItem
-                            key={eachRecord?.college_id}
-                            value={String(eachRecord?.college_id)}
-                            className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
-                          >
-                            <TruncatedItem
-                              name={eachRecord?.college_name}
-                              length={24}
-                            />
-                          </SelectItem>
-                        ))
-                      )}
+
+                    <SelectContent
+                      className="bg-white border border-[#e0e8f7] rounded-xl shadow-lg p-2"
+                      position="popper"
+                      sideOffset={6}
+                    >
+                      {/* Search Box Wrapper */}
+                      <div className="p-2 sticky top-0 bg-white z-10">
+                        <Input
+                          className="w-full h-8"
+                          placeholder="Search the college"
+                          value={search}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setSearch(value);
+                          }}
+                        />
+                      </div>
+
+                      {/* Scrollable List */}
+                      <div className="max-h-60 overflow-y-auto">
+                        {collegesDataLoading ? (
+                          <div className="w-full h-10 flex justify-center items-center">
+                          <Loader className="animate-spin"/>
+                          </div>
+                        ) : (
+                          collegeListData?.length > 0 &&
+                          collegeListData.map((eachRecord) => (
+                            <SelectItem
+                              key={eachRecord?.college_id}
+                              value={String(eachRecord?.college_id)}
+                              className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                            >
+                              <TruncatedItem
+                                name={eachRecord?.college_name}
+                                length={24}
+                              />
+                            </SelectItem>
+                          ))
+                        )}
+                      </div>
                     </SelectContent>
                   </Select>
                   {errorMessages?.college_id &&

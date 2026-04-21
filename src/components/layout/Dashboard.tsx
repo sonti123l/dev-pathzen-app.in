@@ -1,4 +1,3 @@
-import { userDetails } from "~/helpers/constants/getUserDetails";
 import { useQuery } from "@tanstack/react-query";
 import { getCourseDetailsByCourseId } from "~/services/resources/resourceService";
 import { useEffect, useState } from "react";
@@ -8,6 +7,8 @@ import { Button } from "../ui/button";
 import CourseCardSkeleton from "../CourseCardSkeleton";
 import getDayAccordingToTime from "~/helpers/constants/getDateAndTimeAccordingly";
 import { useNavigate } from "@tanstack/react-router";
+import { userDetailsType } from "~/lib/interfaces/app";
+import { getUserFromStorage } from "~/helpers/constants/getUserDetails";
 
 export default function Dashboard() {
   const [courseDetailsFromApi, setCourseDetailsFromApi] = useState({
@@ -15,8 +16,17 @@ export default function Dashboard() {
     domain: [],
   });
 
-  const [ userDetailsData, setUserDetailsData ] = useState({});
-  
+  const [user, setUser] = useState<userDetailsType>({
+    branch_name: "",
+    is_user: "",
+    student_college_id: 0,
+    student_course_id: 0,
+    student_email_id: "",
+    student_id: 0,
+    student_name: "",
+    student_roll_no: 0,
+  });
+
   const navigate = useNavigate();
   const getDayString = getDayAccordingToTime();
   const {
@@ -28,15 +38,16 @@ export default function Dashboard() {
     queryKey: ["course-details"],
     queryFn: async () => {
       const res = await getCourseDetailsByCourseId(
-        userDetailsData?.student_course_id,
+        user?.student_course_id,
       );
       return res?.data?.data?.data;
     },
-    enabled: !!userDetailsData?.student_course_id,
+    enabled: !!user?.student_course_id,
     refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
+    const userDetails = getUserFromStorage();
     if (courseDetailsFetchingSuccessfull) {
       setCourseDetailsFromApi(courseDetails);
     }
@@ -45,15 +56,15 @@ export default function Dashboard() {
       toast.error("Course details are not fetched");
     }
 
-    if(userDetails) {
-      setUserDetailsData(userDetails);
+    if (userDetails) {
+      setUser(userDetails);
     }
   }, [
     courseDetails,
     courseDetailsFetchingSuccessfull,
     errorInCourseDetails,
     setCourseDetailsFromApi,
-    userDetails
+    setUser,
   ]);
 
   return (
@@ -70,16 +81,24 @@ bg-linear-to-r from-indigo-900 via-purple-900 to-blue-900 shadow-lg"
             </p>
 
             <h1 className="text-[28px] font-extrabold tracking-tight text-white leading-[1.15] mt-1.5 mb-2">
-              {`${getDayString}, ${userDetailsData?.student_name}`}
+              {`${getDayString}, ${user?.student_name}`}
             </h1>
           </div>
 
           {/* BUTTONS */}
           <div className="flex gap-4 mt-2">
-            <Button className="inline-flex h-11 items-center gap-2 bg-[#6C63FF] hover:bg-[#5b52ee] text-white text-[14px] font-semibold px-5 py-2.75 rounded-[10px] tracking-[0.01em] transition-colors cursor-pointer border-none" onClick={() => navigate({to: `/course/${userDetails.student_course_id}`})}>
+            <Button
+              className="inline-flex h-11 items-center gap-2 bg-[#6C63FF] hover:bg-[#5b52ee] text-white text-[14px] font-semibold px-5 py-2.75 rounded-[10px] tracking-[0.01em] transition-colors cursor-pointer border-none"
+              onClick={() =>
+                navigate({ to: `/course/${user.student_course_id}` })
+              }
+            >
               ▶ Continue Learning
             </Button>
-            <Button className="inline-flex h-11 items-center bg-white/8 hover:bg-white/15 text-white text-[14px] font-semibold px-5 py-2.75 rounded-[10px] border border-white/15 tracking-[0.01em] transition-colors cursor-pointer" onClick={() => navigate({to: '/courses'})}>
+            <Button
+              className="inline-flex h-11 items-center bg-white/8 hover:bg-white/15 text-white text-[14px] font-semibold px-5 py-2.75 rounded-[10px] border border-white/15 tracking-[0.01em] transition-colors cursor-pointer"
+              onClick={() => navigate({ to: "/courses" })}
+            >
               Browse Courses
             </Button>
           </div>
@@ -137,7 +156,14 @@ bg-linear-to-r from-indigo-900 via-purple-900 to-blue-900 shadow-lg"
                               </p>
 
                               <div className="w-full flex justify-end p-2">
-                                <Button className="bg-transparent border border-white h-10" onClick={() => navigate({to: `/course/${userDetails.student_course_id}`})}>
+                                <Button
+                                  className="bg-transparent border border-white h-10"
+                                  onClick={() =>
+                                    navigate({
+                                      to: `/course/${user.student_course_id}`,
+                                    })
+                                  }
+                                >
                                   Continue
                                 </Button>
                               </div>
