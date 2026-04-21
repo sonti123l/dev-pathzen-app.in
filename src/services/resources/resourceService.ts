@@ -1,8 +1,8 @@
 import { $fetch } from "~/http/fetch";
 
-export const getColleges = async () => {
+export const getColleges = async ({page, limit, search}: {page: number, limit: number, search: string}) => {
   try {
-    const response = await $fetch.get("/api/colleges");
+    const response = await $fetch.get(`/api/colleges?page=${page}&limit=${limit}&search=${search}`);
     return response;
   } catch (err) {
     throw err;

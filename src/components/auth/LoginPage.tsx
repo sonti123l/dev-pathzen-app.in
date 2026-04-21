@@ -6,7 +6,7 @@ import { loginPayload } from "~/lib/interfaces/auth";
 import { userLogin } from "~/services/auth/authService";
 import { useNavigate } from "@tanstack/react-router";
 import Cookies from "js-cookie";
-import { Loader } from "lucide-react";
+import { Eye, EyeOff, Loader } from "lucide-react";
 import { toast } from "sonner";
 
 export default function LoginPage() {
@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [checkRemember, setCheckRemember] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const navigate = useNavigate();
 
@@ -27,13 +28,13 @@ export default function LoginPage() {
       const tokens = data.token;
       Cookies.set("token", tokens.access_token);
       Cookies.set("refresh_token", tokens.refresh_token);
-      localStorage.setItem("user details", JSON.stringify(data?.data, null, 2));
+      localStorage.setItem("user_details", JSON.stringify(data?.data, null, 2));
       navigate({ to: "/dashboard" });
     },
     onError(error) {
-      if(error?.status === 401 || error?.status === 402){
+      if (error?.status === 401 || error?.status === 402) {
         const errors = error?.data.data;
-         const passwordError = errors?.filter(
+        const passwordError = errors?.filter(
           (eachError: { key: string; message: string }) =>
             eachError.key === "password",
         )?.[0];
@@ -124,15 +125,24 @@ export default function LoginPage() {
               <label className="text-xs font-medium text-slate-500 uppercase tracking-widest">
                 Password
               </label>
-              <Input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setPassword(e.target.value)
-                }
-                className="h-11 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              />
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setPassword(e.target.value)
+                  }
+                  className="h-11 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
               {passwordErrorMessage && !password ? (
                 <p className="text-red-500 text-xs">{passwordErrorMessage}</p>
               ) : (
