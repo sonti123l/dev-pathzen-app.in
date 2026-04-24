@@ -13,3 +13,14 @@ export interface registerPayload {
   rollNo: string;
   courseId: number;
 }
+
+export interface registerTeacherPayload{
+  fullName: string;
+  emailAddress: string;
+  password: string;
+  assignedCourseId: number,
+  experience: string,
+  technicalSkills: {
+    skills: string[]
+  }
+}
