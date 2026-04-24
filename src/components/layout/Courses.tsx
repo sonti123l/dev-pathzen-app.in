@@ -47,7 +47,7 @@ export default function AllCourses() {
             <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
               { coursesList?.length > 0 && coursesList?.map((eachCourse) => (
                 <div
-                  key={eachCourse.course_id}
+                  key={eachCourse?.course_id}
                   className="bg-white rounded-2xl shadow-sm border p-5 hover:shadow-lg transition cursor-pointer"
                 >
                   <div className="inline-block px-3 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full mb-3">

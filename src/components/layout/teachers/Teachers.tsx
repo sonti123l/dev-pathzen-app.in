@@ -55,9 +55,6 @@ export default function DisplayTeacher() {
           <h1 className="text-xl font-semibold text-gray-900 dark:text-white tracking-tight">
             Teachers
           </h1>
-          <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
-            {teachers?.length} registered
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -158,11 +155,7 @@ function TeacherTable({ teachers }: { teachers: Teacher[] }) {
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2.5">
-                    <div
-                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${avatarColor(1)}`}
-                    >
-                      {initials(t.teacher_name)}
-                    </div>
+
                     <span className="font-medium text-gray-900 dark:text-white">
                       {t.teacher_name}
                     </span>
@@ -181,14 +174,14 @@ function TeacherTable({ teachers }: { teachers: Teacher[] }) {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
-                    {t.teacher_technicalities.split(",").map((s) => (
+                    {t.teacher_technicalities.skills?.map((eachSkill) => eachSkill.split(",").map((s) => (
                       <span
                         key={s}
                         className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300"
                       >
                         {s.trim()}
                       </span>
-                    ))}
+                    )))}
                   </div>
                 </td>
               </motion.tr>
@@ -222,7 +215,6 @@ function TeacherCards({ teachers }: { teachers: Teacher[] }) {
               <div
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${avatarColor(t.teacher_id)}`}
               >
-                {initials(t.teacher_name)}
               </div>
               <div>
                 <p className="font-medium text-gray-900 dark:text-white">

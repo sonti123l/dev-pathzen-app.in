@@ -51,7 +51,7 @@ export default function AddTeacherModal({
             >
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-[460px] overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+                className="w-full max-w-115 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
               >
                 <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800">
                   <div className="flex items-center gap-3">
