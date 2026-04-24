@@ -9,47 +9,12 @@ interface Teacher {
   teacher_password: string;
   teacher_course_id: number | null;
   teacher_experience: string;
-  teacher_technicalities: string;
+  teacher_technicalities: {
+    skills: string[];
+  };
 }
 
 type ViewMode = "table" | "card";
-
-const MOCK_TEACHERS: Teacher[] = [
-  {
-    teacher_name: "Arjun Mehta",
-    teacher_email_id: "arjun.mehta@school.edu",
-    teacher_password: "••••••••",
-    teacher_course_id: 3,
-    teacher_experience: "6 years",
-    teacher_technicalities: "React, Node.js, PostgreSQL",
-  },
-  {
-    teacher_name: "Sneha Rao",
-    teacher_email_id: "sneha.rao@school.edu",
-    teacher_password: "••••••••",
-    teacher_course_id: 7,
-    teacher_experience: "4 years",
-    teacher_technicalities: "Python, Django, MySQL",
-  },
-  {
-    teacher_name: "Vikram Nair",
-    teacher_email_id: "vikram.nair@school.edu",
-    teacher_password: "••••••••",
-    teacher_course_id: null,
-    teacher_experience: "9 years",
-    teacher_technicalities: "Java, Spring Boot, Docker",
-  },
-];
-
-/* ── Initials helper ─────────────────────────────────────────────────── */
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
 
 const AVATAR_COLORS = [
   "bg-blue-100 text-blue-700",
@@ -66,7 +31,18 @@ function avatarColor(id: number) {
 export default function DisplayTeacher() {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<ViewMode>("table");
-  const [teachers, setTeachers] = useState<Teacher[]>(MOCK_TEACHERS);
+  const [teachers, setTeachers] = useState<Teacher[]>([
+    {
+      teacher_name: "",
+      teacher_email_id: "",
+      teacher_password: "",
+      teacher_course_id: 0,
+      teacher_experience: "",
+      teacher_technicalities: {
+        skills: [""],
+      },
+    },
+  ]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,23 +50,30 @@ export default function DisplayTeacher() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6 font-sans">
-
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-gray-900 dark:text-white tracking-tight">
             Teachers
           </h1>
           <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
-            {teachers.length} registered
+            {teachers?.length} registered
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <div className="flex items-center rounded-lg border border-gray-200 bg-white p-0.5 dark:border-gray-700 dark:bg-gray-900">
-            <ToggleBtn active={view === "table"} onClick={() => setView("table")} label="Table view">
+            <ToggleBtn
+              active={view === "table"}
+              onClick={() => setView("table")}
+              label="Table view"
+            >
               <TableIcon />
             </ToggleBtn>
-            <ToggleBtn active={view === "card"} onClick={() => setView("card")} label="Card view">
+            <ToggleBtn
+              active={view === "card"}
+              onClick={() => setView("card")}
+              label="Card view"
+            >
               <CardIcon />
             </ToggleBtn>
           </div>
@@ -166,14 +149,13 @@ function TeacherTable({ teachers }: { teachers: Teacher[] }) {
             </tr>
           </thead>
           <tbody>
-            {teachers.map((t, i) => (
+            {teachers?.map((t, i) => (
               <motion.tr
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
                 className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60 dark:border-gray-800/60 dark:hover:bg-gray-800/40"
               >
-
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2.5">
                     <div
@@ -226,7 +208,12 @@ function TeacherCards({ teachers }: { teachers: Teacher[] }) {
           key={t.teacher_id}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.07, type: "spring", stiffness: 280, damping: 24 }}
+          transition={{
+            delay: i * 0.07,
+            type: "spring",
+            stiffness: 280,
+            damping: 24,
+          }}
           className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900"
         >
           {/* Card header */}
@@ -288,7 +275,9 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-gray-500 dark:text-gray-400">{label}</span>
-      <span className="font-medium text-gray-800 dark:text-gray-200">{value}</span>
+      <span className="font-medium text-gray-800 dark:text-gray-200">
+        {value}
+      </span>
     </div>
   );
 }

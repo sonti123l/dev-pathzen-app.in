@@ -1,5 +1,5 @@
 import { $fetch } from "~/http/fetch";
-import { loginPayload, registerPayload } from "~/lib/interfaces/auth";
+import { loginPayload, registerPayload, registerTeacherPayload } from "~/lib/interfaces/auth";
 
 export const userLogin = async ({ payload }: { payload: loginPayload }) => {
   try {
@@ -17,6 +17,20 @@ export const registerUser = async ({
 }) => {
   try {
     const response = await $fetch.post("/auth/register", payload);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+export const registerTeacher = async ({
+  payload,
+}: {
+  payload: registerTeacherPayload;
+}) => {
+  try {
+    const response = await $fetch.post("/auth/register-teacher", payload);
     return response;
   } catch (error) {
     throw error;
