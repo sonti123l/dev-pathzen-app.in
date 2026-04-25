@@ -1,3 +1,5 @@
+import { SetStateAction } from "react";
+
 export function PlusIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -48,36 +50,3 @@ export function UserIcon() {
 }
 
 
-function Field({
-  label,
-  name,
-  type = "text",
-  placeholder,
-  className = "",
-}: {
-  label: string;
-  name: string;
-  type?: string;
-  placeholder?: string;
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <label
-        htmlFor={name}
-        className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400"
-      >
-        {label}
-      </label>
-      <input
-        id={name}
-        name={name}
-        type={type}
-        placeholder={placeholder}
-        className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition focus:border-gray-400 focus:bg-white focus:ring-2 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:border-gray-500 dark:focus:bg-gray-900"
-      />
-    </div>
-  );
-}
-
-export default Field;

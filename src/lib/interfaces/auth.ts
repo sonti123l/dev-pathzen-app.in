@@ -16,9 +16,9 @@ export interface registerPayload {
 
 export interface registerTeacherPayload{
   fullName: string;
-  emailAddress: string;
+  email: string;
   password: string;
-  assignedCourseId: number,
+  courseId: number,
   experience: string,
   technicalSkills: {
     skills: string[]
