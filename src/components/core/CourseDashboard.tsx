@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -6,6 +6,11 @@ import { getCourseDetailsByCourseId } from "~/services/resources/resourceService
 import { Button } from "../ui/button";
 import BackArrowIcon from "~/icons/back-icon";
 import CourseDetailSkeleton from "../CourseDetailsSkeletion";
+import { useUser } from "~/hooks/user-provider";
+import { Input } from "../ui/input";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import { Timer } from "lucide-react";
+import { scheduleMeeting } from "~/services/appService";
 
 export default function CourseDashboard() {
   const [courseDetailsFromApi, setCourseDetailsFromApi] = useState({
@@ -13,7 +18,9 @@ export default function CourseDashboard() {
     domain: [],
     modules: [],
   });
+  const [time, setTime] = useState("");
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
+  const { user } = useUser();
 
   const { id } = useParams({ strict: false });
   const router = useRouter();
@@ -37,6 +44,26 @@ export default function CourseDashboard() {
     refetchOnWindowFocus: false,
   });
 
+  const scheduleMeetingMutation = useMutation({
+    mutationKey: ["course_details_update"],
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: { live_time: string };
+    }) => {
+      const response = await scheduleMeeting(id, payload);
+      return response?.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.data?.success_message);
+    },
+    onError: (error) => {
+      toast.error("Failed to schedule meeting");
+    },
+  });
+
   useEffect(() => {
     if (courseDetailsFetchingSuccessfull) {
       setCourseDetailsFromApi(courseDetails);
@@ -51,6 +78,14 @@ export default function CourseDashboard() {
     errorInCourseDetails,
     setCourseDetailsFromApi,
   ]);
+
+  const handleScheduling = (id: number) => {
+    const payload = {
+      live_time: time,
+    };
+
+    scheduleMeetingMutation.mutateAsync({ id, payload });
+  };
 
   return (
     <>
@@ -152,9 +187,51 @@ export default function CourseDashboard() {
                                 className="flex items-center gap-2 pl-[54px] pr-4 py-1.5 cursor-pointer hover:bg-gray-50 transition-colors"
                               >
                                 <div className="w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
-                                <span className="text-[12px] text-gray-500 leading-snug">
-                                  {eachSubModule.sub_module_title}
-                                </span>
+                                <div className="flex justify-between w-full items-center">
+                                  <span className="text-[12px] text-gray-500 leading-snug">
+                                    {eachSubModule.sub_module_title}
+                                  </span>
+                                  {user?.role === "TEACHER" && (
+                                    <div>
+                                      <Dialog>
+                                        <DialogTrigger asChild>
+                                          <Button variant="outline" size="icon">
+                                            <Timer className="w-3 h-3" />
+                                          </Button>
+                                        </DialogTrigger>
+
+                                        <DialogContent className="text-center space-y-4">
+                                          <h2 className="text-lg font-semibold">
+                                            Set Timer
+                                          </h2>
+
+                                          <Input
+                                            type="time"
+                                            value={time}
+                                            onChange={(e) =>
+                                              setTime(e.target.value)
+                                            }
+                                          />
+
+                                          <div className="text-sm text-muted-foreground">
+                                            Selected Time: {time || "Not set"}
+                                          </div>
+
+                                          <Button
+                                            className="w-full"
+                                            onClick={() =>
+                                              handleScheduling(
+                                                eachSubModule.sub_module_id,
+                                              )
+                                            }
+                                          >
+                                            Schedule Live
+                                          </Button>
+                                        </DialogContent>
+                                      </Dialog>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             ),
                           )}
