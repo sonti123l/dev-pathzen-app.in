@@ -20,7 +20,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     if (userDetails) {
       const details = sidebarItems?.filter(
-        (eachRecord) => eachRecord?.isUser === userDetails?.role,
+        (eachRecord) => eachRecord?.isUser.includes(userDetails?.role),
       );
       setSidebarItemsAccordingToRole(details);
     }

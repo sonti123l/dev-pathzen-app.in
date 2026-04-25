@@ -7,8 +7,7 @@ import { Button } from "../ui/button";
 import CourseCardSkeleton from "../CourseCardSkeleton";
 import getDayAccordingToTime from "~/helpers/constants/getDateAndTimeAccordingly";
 import { useNavigate } from "@tanstack/react-router";
-import { userDetailsType } from "~/lib/interfaces/app";
-import { getUserFromStorage } from "~/helpers/constants/getUserDetails";
+import { useUser } from "~/hooks/user-provider";
 
 export default function Dashboard() {
   const [courseDetailsFromApi, setCourseDetailsFromApi] = useState({
@@ -16,16 +15,7 @@ export default function Dashboard() {
     domain: [],
   });
 
-  const [user, setUser] = useState<userDetailsType>({
-    branch_name: "",
-    is_user: "",
-    student_college_id: 0,
-    student_course_id: 0,
-    student_email_id: "",
-    student_id: 0,
-    student_name: "",
-    student_roll_no: 0,
-  });
+  const { user } = useUser();
 
   const navigate = useNavigate();
   const getDayString = getDayAccordingToTime();
@@ -38,16 +28,15 @@ export default function Dashboard() {
     queryKey: ["course-details"],
     queryFn: async () => {
       const res = await getCourseDetailsByCourseId(
-        user?.student_course_id,
+        Number(user?.user_course_id),
       );
       return res?.data?.data?.data;
     },
-    enabled: !!user?.student_course_id,
+    enabled: !!user?.user_course_id,
     refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
-    const userDetails = getUserFromStorage();
     if (courseDetailsFetchingSuccessfull) {
       setCourseDetailsFromApi(courseDetails);
     }
@@ -55,16 +44,11 @@ export default function Dashboard() {
     if (errorInCourseDetails) {
       toast.error("Course details are not fetched");
     }
-
-    if (userDetails) {
-      setUser(userDetails);
-    }
   }, [
     courseDetails,
     courseDetailsFetchingSuccessfull,
     errorInCourseDetails,
     setCourseDetailsFromApi,
-    setUser,
   ]);
 
   return (
@@ -81,7 +65,7 @@ bg-linear-to-r from-indigo-900 via-purple-900 to-blue-900 shadow-lg"
             </p>
 
             <h1 className="text-[28px] font-extrabold tracking-tight text-white leading-[1.15] mt-1.5 mb-2">
-              {`${getDayString}, ${user?.student_name}`}
+              {`${getDayString}, ${user?.user_name}`}
             </h1>
           </div>
 
@@ -90,7 +74,7 @@ bg-linear-to-r from-indigo-900 via-purple-900 to-blue-900 shadow-lg"
             <Button
               className="inline-flex h-11 items-center gap-2 bg-[#6C63FF] hover:bg-[#5b52ee] text-white text-[14px] font-semibold px-5 py-2.75 rounded-[10px] tracking-[0.01em] transition-colors cursor-pointer border-none"
               onClick={() =>
-                navigate({ to: `/course/${user.student_course_id}` })
+                navigate({ to: `/course/${user.user_course_id}` })
               }
             >
               ▶ Continue Learning
@@ -128,7 +112,7 @@ bg-linear-to-r from-indigo-900 via-purple-900 to-blue-900 shadow-lg"
                         )
                         .map((eachCourseDetail) => (
                           <div
-                            key={eachCourseDetail.course_id}
+                            key={eachCourseDetail?.course_id}
                             className="w-100 border-2 h-64 rounded-xl flex flex-col justify-start bg-white shadow"
                           >
                             {/* Top Section */}
@@ -160,7 +144,7 @@ bg-linear-to-r from-indigo-900 via-purple-900 to-blue-900 shadow-lg"
                                   className="bg-transparent border border-white h-10"
                                   onClick={() =>
                                     navigate({
-                                      to: `/course/${user.student_course_id}`,
+                                      to: `/course/${user.user_course_id}`,
                                     })
                                   }
                                 >

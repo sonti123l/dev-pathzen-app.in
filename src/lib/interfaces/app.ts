@@ -29,35 +29,52 @@ export interface CoursesDataType {
   field_id: number;
 }
 
-export interface RegisterErrorMessage{
-  name?: string,
-  email?: string,
-  password?: string,
-  branch_name?: string,
-  college_id?: string,
-  domain_id?: string,
-  roll_no?: string,
-  course_id?: string
+export interface RegisterErrorMessage {
+  name?: string;
+  email?: string;
+  password?: string;
+  branch_name?: string;
+  college_id?: string;
+  domain_id?: string;
+  roll_no?: string;
+  course_id?: string;
 }
 
-export interface registerTeacherErrorMessage{
-  name?: string,
-  email?: string,
-  password?: string, 
-  course_id?: string,
-  experience?: string
+export interface registerTeacherErrorMessage {
+  name?: string;
+  email?: string;
+  password?: string;
+  course_id?: string;
+  experience?: string;
 }
 
-export interface userDetailsType{
-  branch_name: string,
-  role: string,
-  student_college_id: number,
-  student_course_id: number,
-  student_email_id: string,
-  student_id: number,
-  student_name: string,
-  student_roll_no: number,
+export interface userDetailsType {
+  branch_name?: string;
+  role: string;
+  student_college_id?: number;
+  user_course_id?: number;
+  user_mail: string;
+  user_id: number;
+  user_name: string;
+  student_roll_no?: number;
+  teacher_experience?: string;
+  teacher_technicalities?: {
+    skills: string[];
+  };
 }
+
+export type UserType = {
+  user_id?: number;
+  user_name?: string;
+  user_mail?: string;
+  role?: "ADMIN" | "STUDENT" | "TEACHER";
+  user_course_id?: number;
+  student_college_id?: string;
+  student_roll_no?: number;
+  branch_name?: string;
+  teacher_experience?: string;
+  teacher_technicalities?: string[];
+};
 
 export interface registrationFormDataForTeacher {
   fullName: string;
@@ -69,4 +86,3 @@ export interface registrationFormDataForTeacher {
   };
   experience: string;
 }
-
