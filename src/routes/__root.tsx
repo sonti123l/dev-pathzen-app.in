@@ -11,6 +11,7 @@ import appCss from "~/styles/global.css?url";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
+import { UserProvider } from "~/hooks/user-provider";
 
 const queryClient = new QueryClient();
 
@@ -36,9 +37,11 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
-      <RootDocument>
-        <Outlet />
-      </RootDocument>
+      <UserProvider>
+        <RootDocument>
+          <Outlet />
+        </RootDocument>
+      </UserProvider>
     </QueryClientProvider>
   );
 }
