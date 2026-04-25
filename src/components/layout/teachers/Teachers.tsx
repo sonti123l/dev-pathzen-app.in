@@ -1,7 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CardIcon, TableIcon } from "~/icons/teacher-form-icon";
 import AddTeacherModal from "./AddTeacherModal";
+import { useAllCourses } from "~/hooks/use-custom-hooks";
+import { toast } from "sonner";
+import {
+  RegisterErrorMessage,
+  registerTeacherErrorMessage,
+  registrationFormDataForTeacher,
+} from "~/lib/interfaces/app";
+import { useMutation } from "@tanstack/react-query";
+import { registerTeacherApi } from "~/services/auth/authService";
+import { registerTeacherPayload } from "~/lib/interfaces/auth";
 
 interface Teacher {
   teacher_name: string;
@@ -31,6 +41,20 @@ function avatarColor(id: number) {
 export default function DisplayTeacher() {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<ViewMode>("table");
+  const [coursesList, setCoursesList] = useState([]);
+
+  const [registerTeacher, setRegisterTeacher] =
+    useState<registrationFormDataForTeacher>({
+      fullName: "",
+      email: "",
+      password: "",
+      courseId: 0,
+      technicalSkills: {
+        skills: [""],
+      },
+      experience: "",
+    });
+
   const [teachers, setTeachers] = useState<Teacher[]>([
     {
       teacher_name: "",
@@ -44,8 +68,90 @@ export default function DisplayTeacher() {
     },
   ]);
 
+  // registration errors message
+  const [errorMessages, setErrorMessages] =
+    useState<registerTeacherErrorMessage>({
+      name: "",
+      email: "",
+      password: "",
+      experience: "",
+      course_id: "",
+    });
+
+  const {
+    data: allCourseDetails,
+    isSuccess: successfullyGotAllCourses,
+    isError: errorWhileRetrieving,
+    isLoading: coursesDetailsAreLoading,
+  } = useAllCourses();
+
+  const registerTeacherMutation = useMutation({
+    mutationKey: ["register-teacher"],
+    mutationFn: async (payload: registerTeacherPayload) => {
+      const res = await registerTeacherApi({ payload });
+      return res?.data;
+    },
+    onSuccess: (data) => {
+      toast.success("Teacher created successfully");
+    },
+    onError: (error) => {
+      if (error?.status === 422) {
+        const errors = error?.data.data;
+        const nameError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "name",
+        )?.[0];
+
+        const passwordError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "password",
+        )?.[0];
+
+        const experienceError = errors?.filter(
+          (eachError: { key: string; message: string }) =>
+            eachError.key === "experience",
+        )?.[0];
+
+        setErrorMessages((prev) => ({
+          ...prev,
+          name: nameError?.message,
+          email: "email is required",
+          password: passwordError?.message,
+          experience: experienceError?.message,
+          course_id: "Course is required",
+        }));
+      }
+    },
+  });
+
+  useEffect(() => {
+    if (successfullyGotAllCourses) {
+      setCoursesList(allCourseDetails);
+    }
+
+    if (errorWhileRetrieving) {
+      toast.error("Course details are not fetched");
+    }
+  }, [
+    allCourseDetails,
+    successfullyGotAllCourses,
+    errorWhileRetrieving,
+    setCoursesList,
+  ]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const payload = {
+      fullName: registerTeacher?.fullName,
+      email: registerTeacher?.email,
+      password: registerTeacher?.password,
+      courseId: registerTeacher?.courseId,
+      experience: registerTeacher?.experience,
+      technicalSkills: registerTeacher?.technicalSkills,
+    };
+
+    registerTeacherMutation.mutateAsync(payload);
   };
 
   return (
@@ -114,6 +220,11 @@ export default function DisplayTeacher() {
       <AddTeacherModal
         open={open}
         onClose={() => setOpen(false)}
+        coursesDetails={coursesList}
+        courseDetailsLoading={coursesDetailsAreLoading}
+        registerTeacher={registerTeacher}
+        setRegisterTeacher={setRegisterTeacher}
+        errors={errorMessages}
         onSubmit={handleSubmit}
       />
     </div>
@@ -155,7 +266,6 @@ function TeacherTable({ teachers }: { teachers: Teacher[] }) {
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2.5">
-
                     <span className="font-medium text-gray-900 dark:text-white">
                       {t.teacher_name}
                     </span>
@@ -174,14 +284,16 @@ function TeacherTable({ teachers }: { teachers: Teacher[] }) {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
-                    {t.teacher_technicalities.skills?.map((eachSkill) => eachSkill.split(",").map((s) => (
-                      <span
-                        key={s}
-                        className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                      >
-                        {s.trim()}
-                      </span>
-                    )))}
+                    {t.teacher_technicalities.skills?.map((eachSkill) =>
+                      eachSkill.split(",").map((s) => (
+                        <span
+                          key={s}
+                          className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                        >
+                          {s.trim()}
+                        </span>
+                      )),
+                    )}
                   </div>
                 </td>
               </motion.tr>
@@ -214,8 +326,7 @@ function TeacherCards({ teachers }: { teachers: Teacher[] }) {
             <div className="flex items-center gap-3">
               <div
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${avatarColor(t.teacher_id)}`}
-              >
-              </div>
+              ></div>
               <div>
                 <p className="font-medium text-gray-900 dark:text-white">
                   {t.teacher_name}
@@ -262,7 +373,6 @@ function TeacherCards({ teachers }: { teachers: Teacher[] }) {
   );
 }
 
-/* ── Small helpers ────────────────────────────────────────────────────── */
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between">

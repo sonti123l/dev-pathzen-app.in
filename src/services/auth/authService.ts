@@ -24,7 +24,7 @@ export const registerUser = async ({
 };
 
 
-export const registerTeacher = async ({
+export const registerTeacherApi = async ({
   payload,
 }: {
   payload: registerTeacherPayload;

@@ -40,6 +40,14 @@ export interface RegisterErrorMessage{
   course_id?: string
 }
 
+export interface registerTeacherErrorMessage{
+  name?: string,
+  email?: string,
+  password?: string, 
+  course_id?: string,
+  experience?: string
+}
+
 export interface userDetailsType{
   branch_name: string,
   role: string,
@@ -50,3 +58,15 @@ export interface userDetailsType{
   student_name: string,
   student_roll_no: number,
 }
+
+export interface registrationFormDataForTeacher {
+  fullName: string;
+  email: string;
+  password: string;
+  courseId: number;
+  technicalSkills: {
+    skills: string[];
+  };
+  experience: string;
+}
+
