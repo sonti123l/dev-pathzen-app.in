@@ -8,8 +8,10 @@ import { useNavigate } from "@tanstack/react-router";
 import Cookies from "js-cookie";
 import { Eye, EyeOff, Loader } from "lucide-react";
 import { toast } from "sonner";
+import { useUser } from "~/hooks/user-provider";
 
 export default function LoginPage() {
+  const { setUser } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkRemember, setCheckRemember] = useState(false);
@@ -29,6 +31,7 @@ export default function LoginPage() {
       Cookies.set("token", tokens.access_token);
       Cookies.set("refresh_token", tokens.refresh_token);
       localStorage.setItem("user_details", JSON.stringify(data?.data, null, 2));
+      setUser(data?.data)
       if (data?.data?.role === "STUDENT" || data?.data?.role === "TEACHER") {
         navigate({ to: "/dashboard" });
       } else if (data?.data?.role === "ADMIN") {

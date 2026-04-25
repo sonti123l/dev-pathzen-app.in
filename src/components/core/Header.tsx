@@ -14,16 +14,17 @@ interface HeaderProps {
 }
 
 export default function Header({ setSidebarExpanded }: HeaderProps) {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem("user_details");
 
     Cookies.remove("token");
     Cookies.remove("refresh_token");
+    setUser({});
     navigate({ to: "/login" });
   };
 
