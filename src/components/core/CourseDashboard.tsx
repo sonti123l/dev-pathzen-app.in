@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -6,6 +6,11 @@ import { getCourseDetailsByCourseId } from "~/services/resources/resourceService
 import { Button } from "../ui/button";
 import BackArrowIcon from "~/icons/back-icon";
 import CourseDetailSkeleton from "../CourseDetailsSkeletion";
+import { useUser } from "~/hooks/user-provider";
+import { Input } from "../ui/input";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import { Loader, Timer } from "lucide-react";
+import { scheduleMeeting } from "~/services/appService";
 
 export default function CourseDashboard() {
   const [courseDetailsFromApi, setCourseDetailsFromApi] = useState({
@@ -13,7 +18,10 @@ export default function CourseDashboard() {
     domain: [],
     modules: [],
   });
+  const [time, setTime] = useState("");
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { user } = useUser();
 
   const { id } = useParams({ strict: false });
   const router = useRouter();
@@ -37,6 +45,28 @@ export default function CourseDashboard() {
     refetchOnWindowFocus: false,
   });
 
+  const scheduleMeetingMutation = useMutation({
+    mutationKey: ["course_details_update"],
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: { live_time: string };
+    }) => {
+      const response = await scheduleMeeting(id, payload);
+      return response?.data;
+    },
+    onSuccess: (data) => {
+      setDialogOpen(false);
+      setTime("");
+      toast.success(data?.data?.message);
+    },
+    onError: (error) => {
+      toast.error("Failed to schedule meeting");
+    },
+  });
+
   useEffect(() => {
     if (courseDetailsFetchingSuccessfull) {
       setCourseDetailsFromApi(courseDetails);
@@ -51,6 +81,14 @@ export default function CourseDashboard() {
     errorInCourseDetails,
     setCourseDetailsFromApi,
   ]);
+
+  const handleScheduling = (id: number) => {
+    const payload = {
+      live_time: time,
+    };
+
+    scheduleMeetingMutation.mutateAsync({ id, payload });
+  };
 
   return (
     <>
@@ -95,74 +133,157 @@ export default function CourseDashboard() {
               </div>
 
               {/* Sidebar scroll area */}
-              <div className="overflow-y-auto flex-1 py-2">
-                {courseDetailsFromApi?.modules?.map((eachModule: any) => {
-                  const isOpen = !!openModules[eachModule.module_id];
+              <div className="overflow-y-auto flex-1">
+                {courseDetailsFromApi?.modules?.map(
+                  (eachModule: any, moduleIndex: number) => {
+                    const isOpen = !!openModules[eachModule.module_id];
 
-                  return (
-                    <div key={eachModule.module_id} className="mb-0.5">
-                      {/* Module row */}
+                    return (
                       <div
-                        onClick={() => toggleModule(eachModule.module_id)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
+                        key={eachModule.module_id}
+                        className="border-b border-gray-100"
                       >
-                        <div className="w-7 h-7 rounded-md bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                        {/* Module row */}
+                        <div
+                          onClick={() => toggleModule(eachModule.module_id)}
+                          className="flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                            <svg
+                              className="w-4 h-4 text-indigo-600"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <path
+                                d="M2 3h12M2 8h8M2 13h5"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[13px] font-medium text-gray-900 leading-snug block">
+                              {eachModule?.module_name}
+                            </span>
+                            <span className="text-[11px] text-gray-400 mt-0.5 block">
+                              Foundation
+                            </span>
+                          </div>
                           <svg
-                            className="w-3.5 h-3.5 text-emerald-700"
-                            viewBox="0 0 16 16"
+                            className={`w-3.5 h-3.5 text-gray-400 flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-90" : "rotate-0"}`}
+                            viewBox="0 0 12 12"
                             fill="none"
                           >
                             <path
-                              d="M2 3h12M2 8h8M2 13h5"
+                              d="M4 2l4 4-4 4"
                               stroke="currentColor"
                               strokeWidth="1.5"
                               strokeLinecap="round"
+                              strokeLinejoin="round"
                             />
                           </svg>
                         </div>
-                        <span className="text-[13px] font-medium text-gray-800 flex-1 leading-snug">
-                          {eachModule?.module_name}
-                        </span>
 
-                        {/* Rotating chevron */}
-                        <svg
-                          className={`w-3 h-3 text-gray-400 flex-shrink-0 transition-transform duration-200 ${
-                            isOpen ? "rotate-90" : "rotate-0"
-                          }`}
-                          viewBox="0 0 12 12"
-                          fill="none"
-                        >
-                          <path
-                            d="M4 2l4 4-4 4"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                        {/* Sub-modules */}
+                        {isOpen && (
+                          <div className="pb-2">
+                            {eachModule?.sub_modules?.map(
+                              (eachSubModule: any) => (
+                                <div
+                                  key={eachSubModule.sub_module_id}
+                                  className={`flex items-center gap-3 pl-4 pr-4 py-2.5 transition-colors
+                  ${
+                    eachSubModule.is_active
+                      ? "cursor-pointer hover:bg-gray-50"
+                      : "cursor-not-allowed opacity-40 pointer-events-none"
+                  }`}
+                                >
+                                  {/* Check icon */}
+                                  <div
+                                    className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0
+                  ${eachSubModule.is_active ? "bg-indigo-500" : "bg-gray-200"}`}
+                                  >
+                                    <svg
+                                      className="w-3.5 h-3.5 text-white"
+                                      viewBox="0 0 12 12"
+                                      fill="none"
+                                    >
+                                      <path
+                                        d="M2 6l3 3 5-5"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      />
+                                    </svg>
+                                  </div>
+
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-[12px] text-gray-700 leading-snug">
+                                      {eachSubModule.sub_module_title}
+                                    </p>
+                                  </div>
+
+                                  {user?.role === "TEACHER" && (
+                                    <Dialog
+                                      open={dialogOpen}
+                                      onOpenChange={setDialogOpen}
+                                    >
+                                      <DialogTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          size="icon"
+                                          className="w-7 h-7 rounded-lg border-gray-200 flex-shrink-0"
+                                          disabled={!eachSubModule.is_active}
+                                          onClick={() => setDialogOpen(true)}
+                                        >
+                                          <Timer className="w-3 h-3" />
+                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="text-center space-y-4">
+                                        <h2 className="text-lg font-semibold">
+                                          Set Timer
+                                        </h2>
+                                        <Input
+                                          type="time"
+                                          value={time}
+                                          onChange={(e) =>
+                                            setTime(e.target.value)
+                                          }
+                                        />
+                                        <div className="text-sm text-muted-foreground">
+                                          Selected Time: {time || "Not set"}
+                                        </div>
+                                        <Button
+                                          className="w-full"
+                                          onClick={() =>
+                                            handleScheduling(
+                                              eachSubModule.sub_module_id,
+                                            )
+                                          }
+                                          disabled={
+                                            scheduleMeetingMutation?.isPending
+                                          }
+                                        >
+                                          {scheduleMeetingMutation?.isPending ? (
+                                            <Loader className="animate-spin" />
+                                          ) : (
+                                            "Schedule Live"
+                                          )}
+                                        </Button>
+                                      </DialogContent>
+                                    </Dialog>
+                                  )}
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        )}
                       </div>
-
-                      {/* Sub-modules — only shown when open */}
-                      {isOpen && (
-                        <div>
-                          {eachModule?.sub_modules?.map(
-                            (eachSubModule: any) => (
-                              <div
-                                key={eachSubModule.sub_module_id}
-                                className="flex items-center gap-2 pl-[54px] pr-4 py-1.5 cursor-pointer hover:bg-gray-50 transition-colors"
-                              >
-                                <div className="w-1.5 h-1.5 rounded-full bg-gray-300 flex-shrink-0" />
-                                <span className="text-[12px] text-gray-500 leading-snug">
-                                  {eachSubModule.sub_module_title}
-                                </span>
-                              </div>
-                            ),
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  },
+                )}
               </div>
             </aside>
 

@@ -1,15 +1,14 @@
-import { createFileRoute } from '@tanstack/react-router'
-import MainIndexPage from '~/components/Index'
+import { createFileRoute } from "@tanstack/react-router";
+import PathZenApp from "~/components/Index";
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
-  return(
-  <div>
-    <MainIndexPage>
-    </MainIndexPage>
-  </div>
+  return (
+    <div>
+      <PathZenApp />
+    </div>
   );
 }
