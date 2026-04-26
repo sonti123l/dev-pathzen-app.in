@@ -9,7 +9,7 @@ import CourseDetailSkeleton from "../CourseDetailsSkeletion";
 import { useUser } from "~/hooks/user-provider";
 import { Input } from "../ui/input";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import { Loader, Timer } from "lucide-react";
+import { ChevronRight, Loader, Timer } from "lucide-react";
 import { scheduleMeeting } from "~/services/appService";
 
 export default function CourseDashboard() {
@@ -22,6 +22,7 @@ export default function CourseDashboard() {
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useUser();
+  const [latestModuleData, setLatestModuleData] = useState({});
 
   const { id } = useParams({ strict: false });
   const router = useRouter();
@@ -52,7 +53,7 @@ export default function CourseDashboard() {
       payload,
     }: {
       id: number;
-      payload: { live_time: string };
+      payload: { live_time: string; live_date: string };
     }) => {
       const response = await scheduleMeeting(id, payload);
       return response?.data;
@@ -70,6 +71,19 @@ export default function CourseDashboard() {
   useEffect(() => {
     if (courseDetailsFetchingSuccessfull) {
       setCourseDetailsFromApi(courseDetails);
+      const activeSubModule = courseDetails?.modules
+        ?.flatMap((eachModule) =>
+          eachModule?.sub_modules?.map((eachSubModule) => ({
+            module_id: eachModule.module_id,
+            module_name: eachModule.module_name,
+            course_id_for_module: eachModule.course_id_for_module,
+            is_module_complete: eachModule.is_module_complete,
+            ...eachSubModule,
+          })),
+        )
+        ?.find((eachSubModule) => eachSubModule?.is_active === true);
+
+      setLatestModuleData(activeSubModule);
     }
 
     if (errorInCourseDetails) {
@@ -80,11 +94,16 @@ export default function CourseDashboard() {
     courseDetailsFetchingSuccessfull,
     errorInCourseDetails,
     setCourseDetailsFromApi,
+    setLatestModuleData,
   ]);
 
   const handleScheduling = (id: number) => {
+    const today = new Date();
+
+    const liveDate = today.toISOString().split("T")[0];
     const payload = {
       live_time: time,
+      live_date: liveDate,
     };
 
     scheduleMeetingMutation.mutateAsync({ id, payload });
@@ -134,201 +153,183 @@ export default function CourseDashboard() {
 
               {/* Sidebar scroll area */}
               <div className="overflow-y-auto flex-1">
-                {courseDetailsFromApi?.modules?.map(
-                  (eachModule: any, moduleIndex: number) => {
-                    const isOpen = !!openModules[eachModule.module_id];
+                {courseDetailsFromApi?.modules?.map((eachModule: any) => {
+                  const isOpen = !!openModules[eachModule.module_id];
 
-                    return (
+                  return (
+                    <div
+                      key={eachModule.module_id}
+                      className="border-b border-gray-100"
+                    >
+                      {/* Module row */}
                       <div
-                        key={eachModule.module_id}
-                        className="border-b border-gray-100"
+                        onClick={() => toggleModule(eachModule.module_id)}
+                        className="flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-gray-50 transition-colors"
                       >
-                        {/* Module row */}
-                        <div
-                          onClick={() => toggleModule(eachModule.module_id)}
-                          className="flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                            <svg
-                              className="w-4 h-4 text-indigo-600"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                            >
-                              <path
-                                d="M2 3h12M2 8h8M2 13h5"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                              />
-                            </svg>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <span className="text-[13px] font-medium text-gray-900 leading-snug block">
-                              {eachModule?.module_name}
-                            </span>
-                            <span className="text-[11px] text-gray-400 mt-0.5 block">
-                              Foundation
-                            </span>
-                          </div>
+                        <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
                           <svg
-                            className={`w-3.5 h-3.5 text-gray-400 flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-90" : "rotate-0"}`}
-                            viewBox="0 0 12 12"
+                            className="w-4 h-4 text-indigo-600"
+                            viewBox="0 0 16 16"
                             fill="none"
                           >
                             <path
-                              d="M4 2l4 4-4 4"
+                              d="M2 3h12M2 8h8M2 13h5"
                               stroke="currentColor"
                               strokeWidth="1.5"
                               strokeLinecap="round"
-                              strokeLinejoin="round"
                             />
                           </svg>
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[13px] font-medium text-gray-900 leading-snug block">
+                            {eachModule?.module_name}
+                          </span>
+                          <span className="text-[11px] text-gray-400 mt-0.5 block">
+                            Foundation
+                          </span>
+                        </div>
+                        <svg
+                          className={`w-3.5 h-3.5 text-gray-400 flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-90" : "rotate-0"}`}
+                          viewBox="0 0 12 12"
+                          fill="none"
+                        >
+                          <path
+                            d="M4 2l4 4-4 4"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
 
-                        {/* Sub-modules */}
-                        {isOpen && (
-                          <div className="pb-2">
-                            {eachModule?.sub_modules?.map(
-                              (eachSubModule: any) => (
-                                <div
-                                  key={eachSubModule.sub_module_id}
-                                  className={`flex items-center gap-3 pl-4 pr-4 py-2.5 transition-colors
+                      {/* Sub-modules */}
+                      {isOpen && (
+                        <div className="pb-2">
+                          {eachModule?.sub_modules?.map(
+                            (eachSubModule: any) => (
+                              <div
+                                key={eachSubModule.sub_module_id}
+                                className={`flex items-center gap-3 pl-4 pr-4 py-2.5 transition-colors
                   ${
                     eachSubModule.is_active
                       ? "cursor-pointer hover:bg-gray-50"
                       : "cursor-not-allowed opacity-40 pointer-events-none"
                   }`}
-                                >
-                                  {/* Check icon */}
-                                  <div
-                                    className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0
+                              >
+                                {/* Check icon */}
+                                <div
+                                  className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0
                   ${eachSubModule.is_active ? "bg-indigo-500" : "bg-gray-200"}`}
+                                >
+                                  <svg
+                                    className="w-3.5 h-3.5 text-white"
+                                    viewBox="0 0 12 12"
+                                    fill="none"
                                   >
-                                    <svg
-                                      className="w-3.5 h-3.5 text-white"
-                                      viewBox="0 0 12 12"
-                                      fill="none"
-                                    >
-                                      <path
-                                        d="M2 6l3 3 5-5"
-                                        stroke="currentColor"
-                                        strokeWidth="1.8"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                      />
-                                    </svg>
-                                  </div>
-
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-[12px] text-gray-700 leading-snug">
-                                      {eachSubModule.sub_module_title}
-                                    </p>
-                                  </div>
-
-                                  {user?.role === "TEACHER" && (
-                                    <Dialog
-                                      open={dialogOpen}
-                                      onOpenChange={setDialogOpen}
-                                    >
-                                      <DialogTrigger asChild>
-                                        <Button
-                                          variant="outline"
-                                          size="icon"
-                                          className="w-7 h-7 rounded-lg border-gray-200 flex-shrink-0"
-                                          disabled={!eachSubModule.is_active}
-                                          onClick={() => setDialogOpen(true)}
-                                        >
-                                          <Timer className="w-3 h-3" />
-                                        </Button>
-                                      </DialogTrigger>
-                                      <DialogContent className="text-center space-y-4">
-                                        <h2 className="text-lg font-semibold">
-                                          Set Timer
-                                        </h2>
-                                        <Input
-                                          type="time"
-                                          value={time}
-                                          onChange={(e) =>
-                                            setTime(e.target.value)
-                                          }
-                                        />
-                                        <div className="text-sm text-muted-foreground">
-                                          Selected Time: {time || "Not set"}
-                                        </div>
-                                        <Button
-                                          className="w-full"
-                                          onClick={() =>
-                                            handleScheduling(
-                                              eachSubModule.sub_module_id,
-                                            )
-                                          }
-                                          disabled={
-                                            scheduleMeetingMutation?.isPending
-                                          }
-                                        >
-                                          {scheduleMeetingMutation?.isPending ? (
-                                            <Loader className="animate-spin" />
-                                          ) : (
-                                            "Schedule Live"
-                                          )}
-                                        </Button>
-                                      </DialogContent>
-                                    </Dialog>
-                                  )}
+                                    <path
+                                      d="M2 6l3 3 5-5"
+                                      stroke="currentColor"
+                                      strokeWidth="1.8"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
                                 </div>
-                              ),
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  },
-                )}
+
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-[12px] text-gray-700 leading-snug">
+                                    {eachSubModule.sub_module_title}
+                                  </p>
+                                </div>
+
+                                {user?.role === "TEACHER" && (
+                                  <Dialog
+                                    open={dialogOpen}
+                                    onOpenChange={setDialogOpen}
+                                  >
+                                    <DialogTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="w-7 h-7 rounded-lg border-gray-200 flex-shrink-0"
+                                        disabled={!eachSubModule.is_active}
+                                        onClick={() => setDialogOpen(true)}
+                                      >
+                                        <Timer className="w-3 h-3" />
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="text-center space-y-4">
+                                      <h2 className="text-lg font-semibold">
+                                        Set Timer
+                                      </h2>
+                                      <Input
+                                        type="time"
+                                        value={time}
+                                        onChange={(e) =>
+                                          setTime(e.target.value)
+                                        }
+                                      />
+                                      <div className="text-sm text-muted-foreground">
+                                        Selected Time: {time || "Not set"}
+                                      </div>
+                                      <Button
+                                        className="w-full"
+                                        onClick={() =>
+                                          handleScheduling(
+                                            eachSubModule.sub_module_id,
+                                          )
+                                        }
+                                        disabled={
+                                          scheduleMeetingMutation?.isPending
+                                        }
+                                      >
+                                        {scheduleMeetingMutation?.isPending ? (
+                                          <Loader className="animate-spin" />
+                                        ) : (
+                                          "Schedule Live"
+                                        )}
+                                      </Button>
+                                    </DialogContent>
+                                  </Dialog>
+                                )}
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </aside>
 
             {/* Main content */}
             <main className="flex-1 overflow-y-auto p-7 flex flex-col gap-5">
-              {/* Stats row */}
-              <div className="flex gap-3">
-                {[
-                  { label: "Completed", value: "3 / 9", green: true },
-                  { label: "Time spent", value: "1h 24m" },
-                  { label: "Est. remaining", value: "2h 10m" },
-                ].map((s) => (
-                  <div
-                    key={s.label}
-                    className="flex-1 bg-white rounded-xl border border-gray-100 px-3.5 py-3"
-                  >
-                    <p className="text-[11px] text-gray-400 mb-1">{s.label}</p>
-                    <p
-                      className={`text-lg font-medium ${s.green ? "text-emerald-600" : "text-gray-800"}`}
-                    >
-                      {s.value}
-                    </p>
-                  </div>
-                ))}
+              <div className="flex w-full justify-start items-center">
+                <p className="flex items-center gap-1 text-sm text-gray-500">
+                  <span className="text-gray-400">Course Overview</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                  <span className="text-gray-500">
+                    {latestModuleData?.module_name}
+                  </span>
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                  <span className="text-gray-800 font-medium">
+                    {latestModuleData?.sub_module_title}
+                  </span>
+                </p>
               </div>
 
-              {/* Lesson card */}
-              <div className="bg-white border border-gray-100 rounded-2xl p-6">
-                <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-[11px] font-medium px-2.5 py-1 rounded-full mb-3">
-                  Module 1 · Lesson 3
-                </span>
-                <h2 className="text-lg font-medium text-gray-900 mb-2">
-                  Current lesson title
-                </h2>
-                <div className="flex gap-4 text-[12px] text-gray-400 mb-4">
-                  <span>12 min</span>
-                  <span>Video + Reading</span>
-                </div>
-                <div className="h-px bg-gray-100 mb-4" />
-                <p className="text-[14px] text-gray-500 leading-relaxed">
-                  Lesson description goes here.
+              {/* only for video */}
+              <div className="w-full h-130 border "></div>
+
+              {/* that sub module */}
+
+              <div>
+                <p>
+                  {courseDetailsFromApi?.course?.[0]?.course_name}:{" "}
+                  {latestModuleData?.sub_module_title}
                 </p>
-                <button className="mt-5 flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-medium px-4 py-2 rounded-lg transition-colors">
-                  Next lesson →
-                </button>
               </div>
             </main>
           </div>
