@@ -23,8 +23,12 @@ export default function CourseDashboard() {
 
   const [isLive, setIsLive] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
-  const [videoUID, setVideoUID] = useState<string | null>(null);
-  const [courseDetailsFromApi, setCourseDetailsFromApi] = useState({
+  const [iframeUrl, setIframeUrl] = useState<string | null>(null);
+  const [courseDetailsFromApi, setCourseDetailsFromApi] = useState<{
+    course: any[];
+    domain: any[];
+    modules: any[];
+  }>({
     course: [],
     domain: [],
     modules: [],
@@ -33,7 +37,7 @@ export default function CourseDashboard() {
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useUser();
-  const [latestModuleData, setLatestModuleData] = useState<any>({});
+  const [latestModuleData, setLatestModuleData] = useState<any>(null);
 
   const { id } = useParams({ strict: false });
   const router = useRouter();
@@ -48,7 +52,7 @@ export default function CourseDashboard() {
     isError: errorInCourseDetails,
     isLoading: courseDetailsAreLoading,
   } = useQuery({
-    queryKey: ["course-details"],
+    queryKey: ["course-details", id],
     queryFn: async () => {
       const res = await getCourseDetailsByCourseId(Number(id));
       return res?.data?.data?.data;
@@ -109,8 +113,14 @@ export default function CourseDashboard() {
 
   const endLiveMutation = useMutation({
     mutationKey: ["end_live"],
-    mutationFn: async ({ roomId }: { roomId: string }) => {
-      const response = await endLiveStream(roomId);
+    mutationFn: async ({
+      roomId,
+      payload,
+    }: {
+      roomId: string;
+      payload: { role: string };
+    }) => {
+      const response = await endLiveStream(roomId, payload);
       return response?.data;
     },
     onSuccess: () => {
@@ -122,8 +132,9 @@ export default function CourseDashboard() {
   });
 
   useEffect(() => {
-    if (courseDetailsFetchingSuccessfull) {
+    if (courseDetailsFetchingSuccessfull && courseDetails) {
       setCourseDetailsFromApi(courseDetails);
+
       const activeSubModule = courseDetails?.modules
         ?.flatMap((eachModule: any) =>
           eachModule?.sub_modules?.map((eachSubModule: any) => ({
@@ -135,20 +146,22 @@ export default function CourseDashboard() {
           })),
         )
         ?.find((eachSubModule: any) => eachSubModule?.is_active === true);
-      setLatestModuleData(activeSubModule);
+
+      console.log("[CourseDashboard] activeSubModule found:", activeSubModule);
+      setLatestModuleData(activeSubModule ?? null);
     }
+
     if (errorInCourseDetails) toast.error("Course details are not fetched");
   }, [courseDetails, courseDetailsFetchingSuccessfull, errorInCourseDetails]);
 
-  // extract video UID from HLS URL for iframe
   useEffect(() => {
-    if (liveRoomDetailsSuccessfullyFetched && roomDetails?.data?.hls_url) {
-      const hlsUrl = roomDetails.data.hls_url;
-      // extract UID: https://customer-xxx.cloudflarestream.com/UID/manifest/video.m3u8
-      const uid = hlsUrl.split(".com/")[1]?.split("/manifest")[0];
-      if (uid) setVideoUID(uid);
+    console.log("[CourseDashboard] roomDetails:", roomDetails);
+
+    if (roomDetails?.success === true && roomDetails?.data?.iframe_url) {
+      console.log("[CourseDashboard] iframe_url:", roomDetails.data.iframe_url);
+      setIframeUrl(roomDetails.data.iframe_url);
     } else {
-      setVideoUID(null);
+      setIframeUrl(null);
     }
   }, [liveRoomDetailsSuccessfullyFetched, roomDetails]);
 
@@ -212,6 +225,7 @@ export default function CourseDashboard() {
       setIsLive(true);
       toast.success("You are now live!");
     } catch (err) {
+      console.error("[CourseDashboard] handleGoLive error:", err);
       toast.error("Failed to go live");
     }
   };
@@ -228,9 +242,10 @@ export default function CourseDashboard() {
     pcRef.current?.close();
     pcRef.current = null;
 
-    // tell backend
+    const payload = { role: String(user?.role) };
+
     if (roomId) {
-      await endLiveMutation.mutateAsync({ roomId });
+      await endLiveMutation.mutateAsync({ roomId, payload });
     }
 
     setIsLive(false);
@@ -239,7 +254,11 @@ export default function CourseDashboard() {
 
   const isTeacher = user?.role === "TEACHER";
   const isStudent = user?.role === "STUDENT";
-  const isClassLive = liveRoomDetailsSuccessfullyFetched && !!videoUID;
+
+  const isClassLive =
+    liveRoomDetailsSuccessfullyFetched &&
+    roomDetails?.success === true &&
+    !!iframeUrl;
 
   return (
     <>
@@ -504,13 +523,13 @@ export default function CourseDashboard() {
                   </>
                 )}
 
-                {/* Student viewer — iframe to avoid CORS */}
+                {/* Student viewer */}
                 {isStudent && (
                   <>
-                    {isClassLive && videoUID ? (
+                    {isClassLive ? (
                       <>
                         <iframe
-                          src={`https://customer-f69554e738d825bd2826480379f7f8f7.cloudflarestream.com/${videoUID}/iframe?autoplay=true`}
+                          src={`${iframeUrl}?autoplay=true`}
                           className="w-full h-full border-0"
                           allow="autoplay; fullscreen; picture-in-picture"
                           allowFullScreen
@@ -524,7 +543,9 @@ export default function CourseDashboard() {
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                         <Radio className="w-10 h-10 text-gray-600" />
                         <p className="text-gray-500 text-sm">
-                          No live class right now
+                          {!latestModuleData
+                            ? "No active module assigned"
+                            : "No live class right now"}
                         </p>
                       </div>
                     )}
