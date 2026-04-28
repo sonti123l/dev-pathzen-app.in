@@ -24,6 +24,9 @@ export default function CourseDashboard() {
   const [isLive, setIsLive] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [iframeUrl, setIframeUrl] = useState<string | null>(null);
+  // true once backend confirms a live room exists for this submodule
+  const [isRoomLive, setIsRoomLive] = useState(false);
+
   const [courseDetailsFromApi, setCourseDetailsFromApi] = useState<{
     course: any[];
     domain: any[];
@@ -155,15 +158,23 @@ export default function CourseDashboard() {
   }, [courseDetails, courseDetailsFetchingSuccessfull, errorInCourseDetails]);
 
   useEffect(() => {
-    console.log("[CourseDashboard] roomDetails:", roomDetails);
-
     if (roomDetails?.success === true && roomDetails?.data?.iframe_url) {
-      console.log("[CourseDashboard] iframe_url:", roomDetails.data.iframe_url);
-      setIframeUrl(roomDetails.data.iframe_url);
+      // Set iframeUrl only ONCE — never update it on subsequent polls.
+      // Changing the src or key on every 5s poll remounts the iframe and
+      // kills the stream mid-watch for the student.
+      // The Cloudflare iframe (iframe.cloudflarestream.com) natively shows
+      // a "Waiting for broadcast" screen until the teacher's WebRTC starts.
+      setIframeUrl((prev) => prev ?? roomDetails.data.iframe_url);
+      setIsRoomLive(true);
     } else {
-      setIframeUrl(null);
+      // Class ended or no active room
+      setIsRoomLive(false);
+      if (roomDetails && !roomDetails?.success) {
+        setIframeUrl(null);
+      }
     }
-  }, [liveRoomDetailsSuccessfullyFetched, roomDetails]);
+  }, [roomDetails]);
+
 
   const handleScheduling = (subModuleId: number) => {
     const today = new Date();
@@ -203,18 +214,61 @@ export default function CourseDashboard() {
       }
 
       // push to Cloudflare via WHIP
-      const pc = new RTCPeerConnection();
+      const pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.cloudflare.com:3478" }],
+        bundlePolicy: "max-bundle", // CRITICAL for Cloudflare
+      });
       pcRef.current = pc;
-      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+      // Monitor connection state to detect if it fails after SDP exchange
+      pc.addEventListener("iceconnectionstatechange", () => {
+        console.log("[CourseDashboard] ICE Connection State:", pc.iceConnectionState);
+        if (pc.iceConnectionState === "failed") {
+          toast.error("WebRTC connection failed. Please check your network/firewall.");
+        }
+      });
+
+      // Cloudflare requires sendonly transceivers
+      stream.getTracks().forEach((track) => {
+        pc.addTransceiver(track, { direction: "sendonly", streams: [stream] });
+      });
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
+      // CRITICAL FIX: Wait for ICE candidates to be gathered before sending SDP.
+      // If we send it immediately, it has no network info and Cloudflare can't connect back.
+      await new Promise<void>((resolve) => {
+        if (pc.iceGatheringState === "complete") {
+          resolve();
+        } else {
+          const checkState = () => {
+            if (pc.iceGatheringState === "complete") {
+              pc.removeEventListener("icegatheringstatechange", checkState);
+              resolve();
+            }
+          };
+          pc.addEventListener("icegatheringstatechange", checkState);
+          // Wait up to 10 seconds for STUN candidates to be gathered
+          setTimeout(() => {
+            console.warn("[CourseDashboard] ICE gathering timeout reached!");
+            resolve();
+          }, 10000);
+        }
+      });
+
+      const sdpToSend = pc.localDescription?.sdp || offer.sdp;
+      console.log("[CourseDashboard] Sending SDP to Cloudflare. Contains candidates?", sdpToSend.includes("a=candidate"));
+
       const whipRes = await fetch(streamKey, {
         method: "POST",
         headers: { "Content-Type": "application/sdp" },
-        body: offer.sdp,
+        body: sdpToSend,
       });
+
+      if (!whipRes.ok) {
+        throw new Error(`Failed to publish stream to Cloudflare. Status: ${whipRes.status}`);
+      }
 
       const answerSdp = await whipRes.text();
       await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
@@ -255,10 +309,10 @@ export default function CourseDashboard() {
   const isTeacher = user?.role === "TEACHER";
   const isStudent = user?.role === "STUDENT";
 
-  const isClassLive =
-    liveRoomDetailsSuccessfullyFetched &&
-    roomDetails?.success === true &&
-    !!iframeUrl;
+  // isClassLive is true when the backend confirms a room is active AND we have
+  // an iframe_url AND the iframe hasn't errored (404 from Cloudflare means
+  // the teacher's WHIP stream isn't flowing yet — we keep retrying via iframeKey).
+  const isClassLive = isRoomLive && !!iframeUrl;
 
   return (
     <>
@@ -526,27 +580,50 @@ export default function CourseDashboard() {
                 {/* Student viewer */}
                 {isStudent && (
                   <>
-                    {isClassLive ? (
-                      <>
-                        <iframe
-                          src={`${iframeUrl}?autoplay=true`}
-                          className="w-full h-full border-0"
-                          allow="autoplay; fullscreen; picture-in-picture"
-                          allowFullScreen
-                        />
-                        <div className="absolute top-4 left-4 flex items-center gap-2 bg-red-600 text-white text-xs px-3 py-1.5 rounded-full font-semibold pointer-events-none">
-                          <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                          LIVE
-                        </div>
-                      </>
-                    ) : (
+                    {/* iframe.cloudflarestream.com natively shows "Waiting for
+                        broadcast" when no video is flowing, then auto-plays when
+                        the teacher's WebRTC stream starts. Render it once — never
+                        remount it on every poll (that kills the stream mid-watch). */}
+                    {isClassLive && iframeUrl && (
+                      <iframe
+                        src={`${iframeUrl}?autoplay=true`}
+                        className="w-full h-full border-0"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowFullScreen
+                      />
+                    )}
+
+                    {/* LIVE badge */}
+                    {isClassLive && (
+                      <div className="absolute top-4 left-4 flex items-center gap-2 bg-red-600 text-white text-xs px-3 py-1.5 rounded-full font-semibold pointer-events-none">
+                        <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                        LIVE
+                      </div>
+                    )}
+
+                    {/* No class / offline / starting */}
+                    {!isClassLive && (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                        <Radio className="w-10 h-10 text-gray-600" />
-                        <p className="text-gray-500 text-sm">
-                          {!latestModuleData
-                            ? "No active module assigned"
-                            : "No live class right now"}
-                        </p>
+                        {roomDetails?.data?.stream_starting ? (
+                          <>
+                            <Loader className="w-8 h-8 text-gray-500 animate-spin" />
+                            <p className="text-gray-400 text-sm font-medium">
+                              Class is starting…
+                            </p>
+                            <p className="text-gray-400 text-xs">
+                              Connecting to live stream, please wait
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <Radio className="w-10 h-10 text-gray-600" />
+                            <p className="text-gray-500 text-sm">
+                              {!latestModuleData
+                                ? "No active module assigned"
+                                : "No live class right now"}
+                            </p>
+                          </>
+                        )}
                       </div>
                     )}
                   </>
