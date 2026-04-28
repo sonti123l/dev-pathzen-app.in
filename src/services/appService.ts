@@ -34,9 +34,9 @@ export const roomActiveForStudent = async (id: number) => {
 };
 
 
-export const endLiveStream = async (id: string) => {
+export const endLiveStream = async (id: string, payload: {role: string}) => {
   try {
-    const res = await $fetch.get(`/rooms/end/${id}`);
+    const res = await $fetch.post(`/rooms/end/${id}`, payload);
     return res;
   } catch (error) {
     throw error;
