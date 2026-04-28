@@ -9,7 +9,7 @@ import CourseDetailSkeleton from "../CourseDetailsSkeletion";
 import { useUser } from "~/hooks/user-provider";
 import { Input } from "../ui/input";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import { ChevronRight, Loader, Radio, Timer, X } from "lucide-react";
+import { ChevronRight, Loader, Radio, Timer, X, MonitorUp, Camera } from "lucide-react";
 import {
   roomActiveForStudent,
   scheduleMeeting,
@@ -284,6 +284,58 @@ export default function CourseDashboard() {
     }
   };
 
+  const handleShareScreen = async () => {
+    try {
+      const displayStream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true, // Optional: capture system audio
+      });
+
+      const videoTrack = displayStream.getVideoTracks()[0];
+
+      // Replace the video track in the WebRTC connection
+      if (pcRef.current) {
+        const videoSender = pcRef.current
+          .getSenders()
+          .find((s) => s.track?.kind === "video");
+        if (videoSender) {
+          videoSender.replaceTrack(videoTrack);
+        }
+      }
+
+      // Show it in the local preview
+      if (videoRef.current) {
+        // Keep the original audio track so the teacher's mic still works
+        // or just replace the whole srcObject
+        videoRef.current.srcObject = displayStream;
+      }
+
+      // Handle user clicking "Stop Sharing" on the browser's native bar
+      videoTrack.onended = async () => {
+        try {
+          const camStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+          const camTrack = camStream.getVideoTracks()[0];
+          
+          if (pcRef.current) {
+            const sender = pcRef.current.getSenders().find((s) => s.track?.kind === "video");
+            if (sender) sender.replaceTrack(camTrack);
+          }
+          if (videoRef.current) {
+            videoRef.current.srcObject = camStream;
+          }
+        } catch (e) {
+          console.error("Failed to revert to camera", e);
+        }
+      };
+    } catch (err) {
+      console.error("[CourseDashboard] Failed to share screen:", err);
+      toast.error("Screen sharing was cancelled or failed");
+    }
+  };
+
   const handleEndLive = async () => {
     // stop camera tracks
     if (videoRef.current?.srcObject) {
@@ -531,20 +583,29 @@ export default function CourseDashboard() {
                       )}
                     </Button>
                   ) : (
-                    <Button
-                      onClick={handleEndLive}
-                      disabled={endLiveMutation.isPending}
-                      className="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-xl flex items-center gap-2 shadow-md"
-                    >
-                      {endLiveMutation.isPending ? (
-                        <Loader className="animate-spin w-4 h-4" />
-                      ) : (
-                        <>
-                          <X className="w-4 h-4" />
-                          End Live
-                        </>
-                      )}
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        onClick={handleShareScreen}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl flex items-center gap-2 shadow-md"
+                      >
+                        <MonitorUp className="w-4 h-4" />
+                        Share Screen
+                      </Button>
+                      <Button
+                        onClick={handleEndLive}
+                        disabled={endLiveMutation.isPending}
+                        className="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-xl flex items-center gap-2 shadow-md"
+                      >
+                        {endLiveMutation.isPending ? (
+                          <Loader className="animate-spin w-4 h-4" />
+                        ) : (
+                          <>
+                            <X className="w-4 h-4" />
+                            End Live
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   ))}
               </div>
 
