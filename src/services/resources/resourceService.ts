@@ -1,46 +1,26 @@
 import { $fetch } from "~/http/fetch";
 
 export const getColleges = async ({page, limit, search}: {page: number, limit: number, search: string}) => {
-  try {
-    const response = await $fetch.get(`/api/colleges?page=${page}&limit=${limit}&search=${search}`);
-    return response;
-  } catch (err) {
-    throw err;
-  }
+  const response = await $fetch.get(`/api/colleges?page=${page}&limit=${limit}&search=${search}`);
+  return response;
 };
 
 export const getDomains = async () => {
-  try {
-    const response = await $fetch.get("/api/domains");
-    return response;
-  } catch (err) {
-    throw err;
-  }
+  const response = await $fetch.get("/api/domains");
+  return response;
 };
 
 export const getCoursesByDomainId = async (id: number) => {
-  try {
-    const response = await $fetch.get(`/api/courses/${id}`);
-    return response;
-  } catch (err) {
-    throw err;
-  }
+  const response = await $fetch.get(`/api/courses/${id}`);
+  return response;
 };
 
 export const getCourseDetailsByCourseId = async (courseId: number) => {
-  try {
-    const response = await $fetch.get(`/api/course/${courseId}`);
-    return response;
-  } catch (err) {
-    throw err;
-  }
+  const response = await $fetch.get(`/api/course/${courseId}`);
+  return response;
 };
 
 export const getAllCourses = async () => {
-  try {
-    const response = await $fetch.get(`/api/courses`);
-    return response;
-  } catch (err) {
-    throw err;
-  }
+  const response = await $fetch.get(`/api/courses`);
+  return response;
 };

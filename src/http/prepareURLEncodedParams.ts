@@ -1,11 +1,11 @@
-export const arrayToUrlString = (key: any, value: any) => {
-  let arrayUrl: any;
-  arrayUrl = value.map((item: any) => {
+export const arrayToUrlString = (key: string, value: unknown[]) => {
+  const arrayUrl = value.map((item: unknown) => {
     return `${key}=${item}`;
   });
   return arrayUrl.join("&");
 };
-const prepareURLEncodedParams = (url: string, params: any) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const prepareURLEncodedParams = (url: string, params: Record<string, any>) => {
   const paramsArray = Object.keys(params)
     .map((key) => {
       const value = params[key];

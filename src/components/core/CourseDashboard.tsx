@@ -9,13 +9,29 @@ import CourseDetailSkeleton from "../CourseDetailsSkeletion";
 import { useUser } from "~/hooks/user-provider";
 import { Input } from "../ui/input";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import { ChevronRight, Loader, Radio, Timer, X, MonitorUp, Camera } from "lucide-react";
+import { ChevronRight, Loader, Radio, Timer, X, MonitorUp } from "lucide-react";
 import {
   roomActiveForStudent,
   scheduleMeeting,
   createLiveStream,
   endLiveStream,
 } from "~/services/appService";
+
+type SubModuleType = {
+  sub_module_id: string;
+  sub_module_title: string;
+  is_active: boolean;
+  [key: string]: unknown;
+};
+
+type ModuleType = {
+  module_id: string;
+  module_name: string;
+  course_id_for_module: string;
+  is_module_complete: boolean;
+  sub_modules?: SubModuleType[];
+  [key: string]: unknown;
+};
 
 export default function CourseDashboard() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -28,9 +44,9 @@ export default function CourseDashboard() {
   const [isRoomLive, setIsRoomLive] = useState(false);
 
   const [courseDetailsFromApi, setCourseDetailsFromApi] = useState<{
-    course: any[];
-    domain: any[];
-    modules: any[];
+    course: unknown[];
+    domain: unknown[];
+    modules: unknown[];
   }>({
     course: [],
     domain: [],
@@ -40,7 +56,7 @@ export default function CourseDashboard() {
   const [openModules, setOpenModules] = useState<Record<string, boolean>>({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useUser();
-  const [latestModuleData, setLatestModuleData] = useState<any>(null);
+  const [latestModuleData, setLatestModuleData] = useState<SubModuleType | null>(null);
 
   const { id } = useParams({ strict: false });
   const router = useRouter();
@@ -64,7 +80,7 @@ export default function CourseDashboard() {
     refetchOnWindowFocus: false,
   });
 
-  const { data: roomDetails, isSuccess: liveRoomDetailsSuccessfullyFetched } =
+  const { data: roomDetails } =
     useQuery({
       queryKey: ["live-details", latestModuleData?.sub_module_id],
       queryFn: async () => {
@@ -139,8 +155,8 @@ export default function CourseDashboard() {
       setCourseDetailsFromApi(courseDetails);
 
       const activeSubModule = courseDetails?.modules
-        ?.flatMap((eachModule: any) =>
-          eachModule?.sub_modules?.map((eachSubModule: any) => ({
+        ?.flatMap((eachModule: ModuleType) =>
+          eachModule?.sub_modules?.map((eachSubModule: SubModuleType) => ({
             module_id: eachModule.module_id,
             module_name: eachModule.module_name,
             course_id_for_module: eachModule.course_id_for_module,
@@ -148,7 +164,7 @@ export default function CourseDashboard() {
             ...eachSubModule,
           })),
         )
-        ?.find((eachSubModule: any) => eachSubModule?.is_active === true);
+        ?.find((eachSubModule: SubModuleType) => eachSubModule?.is_active === true);
 
       console.log("[CourseDashboard] activeSubModule found:", activeSubModule);
       setLatestModuleData(activeSubModule ?? null);
@@ -405,7 +421,7 @@ export default function CourseDashboard() {
                 </p>
               </div>
               <div className="overflow-y-auto flex-1">
-                {courseDetailsFromApi?.modules?.map((eachModule: any) => {
+                {courseDetailsFromApi?.modules?.map((eachModule: ModuleType) => {
                   const isOpen = !!openModules[eachModule.module_id];
                   return (
                     <div
@@ -456,7 +472,7 @@ export default function CourseDashboard() {
                       {isOpen && (
                         <div className="pb-2">
                           {eachModule?.sub_modules?.map(
-                            (eachSubModule: any) => (
+                            (eachSubModule: SubModuleType) => (
                               <div
                                 key={eachSubModule.sub_module_id}
                                 className={`flex items-center gap-3 pl-4 pr-4 py-2.5 transition-colors

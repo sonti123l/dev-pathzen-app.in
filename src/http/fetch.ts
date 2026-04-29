@@ -4,8 +4,8 @@ import Cookies from "js-cookie";
 interface IAPIResponse {
   success: boolean;
   status: number;
-  data: any;
-  message?: any;
+  data: unknown;
+  message?: unknown;
 }
 
 class FetchService {
@@ -18,16 +18,16 @@ class FetchService {
     this._fetchType = fetchTypeValue;
   }
 
-  configureAuthorization(config: any) {
+  configureAuthorization(config: { headers: Record<string, string> }) {
     const accessToken = Cookies.get("token") || "";
     config.headers["Authorization"] = "Bearer " + accessToken;
   }
 
-  setHeader(config: any) {
+  setHeader(config: { headers: Record<string, string> }) {
     config.headers = {};
   }
 
-  setDefaultHeaders(config: any) {
+  setDefaultHeaders(config: { headers?: Record<string, string>; body?: unknown }) {
     config.headers = config.headers || {};
     if (!config.headers["Content-Type"] && !(config.body instanceof FormData)) {
       config.headers["Content-Type"] = "application/json";
@@ -82,13 +82,13 @@ class FetchService {
       const data = await response.json();
       Cookies.set("token", data.access_token);
       return data.access_token;
-    } catch (error) {
+    } catch {
       window.location.href = "/";
       return null;
     }
   }
 
-  async hit(...args: any): Promise<IAPIResponse> {
+  async hit(...args: [string, RequestInit & { allowConcurrent?: boolean }?]): Promise<IAPIResponse> {
     const [path, config = {}] = args;
     const method = config.method || "GET";
     const allowConcurrent =
@@ -115,7 +115,7 @@ class FetchService {
     }
 
     const url = import.meta.env.VITE_PUBLIC_API_URL + path;
-    let response: any;
+    let response: Response;
 
     try {
       response = await fetch(url, config);
@@ -133,10 +133,10 @@ class FetchService {
       }
 
       this.activeRequests.delete(requestKey);
-    } catch (error: any) {
+    } catch (error) {
       this.activeRequests.delete(requestKey);
 
-      if (error.name === "AbortError") {
+      if (error instanceof Error && error.name === "AbortError") {
         return {
           success: false,
           status: 0,
@@ -148,7 +148,7 @@ class FetchService {
         success: false,
         status: 0,
         data: null,
-        message: error.message || "Network error",
+        message: error instanceof Error ? error.message : "Network error",
       };
     }
 
@@ -182,7 +182,7 @@ class FetchService {
       } catch {
         errorData = { message: response.statusText };
       }
-      const err: any = new Error(errorData.message || response.statusText);
+      const err = new Error(errorData.message || response.statusText) as Error & { data?: unknown; status?: number };
       err.data = errorData;
       err.status = response.status;
       throw err;
@@ -207,7 +207,7 @@ class FetchService {
     }
   }
 
-  async post(url: string, payload?: any) {
+  async post(url: string, payload?: unknown) {
     return await this.hit(url, {
       method: "POST",
       body: payload ? JSON.stringify(payload) : undefined,
@@ -225,7 +225,7 @@ class FetchService {
     if (Object.keys(queryParams).length) {
       url = prepareURLEncodedParams(url, queryParams);
     }
-    const config: any = {
+    const config: RequestInit = {
       method: "GET",
     };
     this.setDefaultHeaders(config);

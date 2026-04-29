@@ -24,7 +24,7 @@ export interface DomainsDataType {
 export interface CoursesDataType {
   course_id: number;
   course_name: string;
-  course_meta_data: any;
+  course_meta_data: unknown;
   course_created_at: string;
   field_id: number;
 }

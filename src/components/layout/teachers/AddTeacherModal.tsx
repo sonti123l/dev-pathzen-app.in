@@ -19,7 +19,7 @@ import {
 interface AddTeacherModalProps {
   open: boolean;
   onClose: () => void;
-  coursesDetails: any;
+  coursesDetails: unknown[];
   courseDetailsLoading: boolean;
   registerTeacher: registrationFormDataForTeacher;
   setRegisterTeacher: React.Dispatch<
@@ -238,7 +238,7 @@ export default function AddTeacherModal({
                                 domain_name: string;
                                 course_id: number;
                                 course_name: string;
-                                course_meta_data: any;
+                                course_meta_data: unknown;
                                 course_created_at: string;
                               }) => (
                                 <SelectItem

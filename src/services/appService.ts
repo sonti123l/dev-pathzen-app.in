@@ -4,41 +4,25 @@ export const scheduleMeeting = async (
   id: number,
   payload: { live_time: string; live_date: string },
 ) => {
-  try {
-    const res = await $fetch.patch(`/course/submodule/${id}/settime`, payload);
-    return res;
-  } catch (error) {
-    throw error;
-  }
+  const res = await $fetch.patch(`/course/submodule/${id}/settime`, payload);
+  return res;
 };
 
 export const createLiveStream = async (
   id: number,
   payload: { role: string; title: string; createdBy: string },
 ) => {
-  try {
-    const res = await $fetch.post(`/rooms/golive/${id}`, payload);
-    return res;
-  } catch (error) {
-    throw error;
-  }
+  const res = await $fetch.post(`/rooms/golive/${id}`, payload);
+  return res;
 };
 
 export const roomActiveForStudent = async (id: number) => {
-  try {
-    const res = await $fetch.get(`/rooms/active/${id}`);
-    return res;
-  } catch (error) {
-    throw error;
-  }
+  const res = await $fetch.get(`/rooms/active/${id}`);
+  return res;
 };
 
 
 export const endLiveStream = async (id: string, payload: {role: string}) => {
-  try {
-    const res = await $fetch.post(`/rooms/end/${id}`, payload);
-    return res;
-  } catch (error) {
-    throw error;
-  }
+  const res = await $fetch.post(`/rooms/end/${id}`, payload);
+  return res;
 };

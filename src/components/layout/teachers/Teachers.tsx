@@ -5,7 +5,6 @@ import AddTeacherModal from "./AddTeacherModal";
 import { useAllCourses } from "~/hooks/use-custom-hooks";
 import { toast } from "sonner";
 import {
-  RegisterErrorMessage,
   registerTeacherErrorMessage,
   registrationFormDataForTeacher,
 } from "~/lib/interfaces/app";
@@ -55,7 +54,7 @@ export default function DisplayTeacher() {
       experience: "",
     });
 
-  const [teachers, setTeachers] = useState<Teacher[]>([
+  const [teachers] = useState<Teacher[]>([
     {
       teacher_name: "",
       teacher_email_id: "",
@@ -91,7 +90,7 @@ export default function DisplayTeacher() {
       const res = await registerTeacherApi({ payload });
       return res?.data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Teacher created successfully");
     },
     onError: (error) => {

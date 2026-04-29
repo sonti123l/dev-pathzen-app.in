@@ -1,4 +1,9 @@
-export const handleAPIErrorResponse = async (response: any) => {
+export const handleAPIErrorResponse = async (response: {
+  status?: number;
+  message?: string;
+  errors?: unknown;
+  error?: unknown;
+}) => {
   switch (response?.status) {
     case 422:
       return {
